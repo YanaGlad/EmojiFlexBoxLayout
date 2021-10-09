@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="EmojiView">
+        <attr name="customTextColor" format="color" />
+        <attr name="customText" format="string" />
+        <attr name="textSize" format="dimension" />
+        <attr name="corner_radius" format="dimension" />
+        <attr name="tap_count" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="RoundCornerView">
+        <attr name="src" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="EmojiImageView">
+        <attr name="android:foreground"/>
+        <attr name="android:textColor"/>
+        <attr name="cl_size" format="dimension" />
+        <attr name="img" format="integer"/>
+        <attr name="count_of_emoji" format="integer"/>
+    </declare-styleable>
+
+    <declare-styleable name="MyFlowLayout">
+        <attr name="flexHorizontalMargin" format="dimension" />
+        <attr name="flexVerticalMargin" format="dimension" />
+        <attr name="column_count" format="integer" />
+    </declare-styleable>
+
+</resources>

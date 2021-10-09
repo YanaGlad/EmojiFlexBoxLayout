@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Emoji</string>
+    <string name="choice">Choose emoji</string>
+    <string name="plus">+</string>
+    <string name="test_text">Hello world! Hello world! Hello world! Hello world! Hello world! Hello world! Hello world! Hello world! Hello world! Hello world! Hello world! Hello world! Hello world! Hello world! Hello world! Hello world! Hello world! Hello world! Hello world! Hello world! Hello world! Hello world! Hello world! Hello world!</string>
+    <string name="yana_glad">Yana Glad</string>
+    <string name="how_are_u">Hello, how re you? Привет, как дела??????</string>
+</resources>

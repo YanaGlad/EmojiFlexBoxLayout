@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    tools:parentTag="com.example.emoji.customview.EmojiMessageView">
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/yana_glad"
+        android:textColor="@color/black" />
+
+
+    <TextView
+        android:id="@+id/tv_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="40dp"
+        android:text="@string/how_are_u" />
+
+
+</merge>
