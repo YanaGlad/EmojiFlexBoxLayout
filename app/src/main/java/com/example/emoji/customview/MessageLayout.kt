@@ -26,9 +26,9 @@ class MessageLayout @JvmOverloads constructor(
 
     init {
         LayoutInflater.from(context).inflate(R.layout.message_view_group, this, true)
-        name = findViewById(R.id.tv_name)
+        name = findViewById(R.id.name)
         name.setTextColor(resources.getColor(R.color.name_color))
-        message = findViewById(R.id.tv_message)
+        message = findViewById(R.id.message)
         message.setTextColor(resources.getColor(R.color.white))
     }
 
