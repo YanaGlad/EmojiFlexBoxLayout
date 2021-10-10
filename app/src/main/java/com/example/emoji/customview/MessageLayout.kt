@@ -19,16 +19,16 @@ class MessageLayout @JvmOverloads constructor(
     defStyleRes: Int = 0
 ) : ViewGroup(context, attrs, defStyleAttrs, defStyleRes) {
 
-    private val name: TextView
-    private val message: TextView
+    val name: TextView
+    var message: TextView
     private val nameRect = Rect()
     private val messageRect = Rect()
 
     init {
         LayoutInflater.from(context).inflate(R.layout.message_view_group, this, true)
-        name = findViewById(R.id.tv_name)
+        name = findViewById(R.id.name)
         name.setTextColor(resources.getColor(R.color.name_color))
-        message = findViewById(R.id.tv_message)
+        message = findViewById(R.id.msg)
         message.setTextColor(resources.getColor(R.color.white))
     }
 
@@ -57,7 +57,7 @@ class MessageLayout @JvmOverloads constructor(
             resolveSize(totalWidth, widthMeasureSpec),
             resolveSize(
                 message.height() + name.height() + 50,
-                maxOf(message.width(), name.width())
+                maxOf(message.width(), name.width()-10)
             )
         )
     }

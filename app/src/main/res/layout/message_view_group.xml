@@ -6,7 +6,7 @@
     tools:parentTag="com.example.emoji.customview.EmojiMessageView">
 
     <TextView
-        android:id="@+id/tv_name"
+        android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/yana_glad"
@@ -14,7 +14,7 @@
 
 
     <TextView
-        android:id="@+id/tv_message"
+        android:id="@+id/msg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="40dp"

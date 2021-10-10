@@ -1,22 +1,19 @@
 package com.example.emoji.customview
 
 import android.content.Context
+import android.content.res.TypedArray
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View.OnClickListener
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.GridView
-import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import com.example.emoji.R
-import com.example.emoji.support.rect
 import com.example.emoji.support.height
 import com.example.emoji.support.layout
+import com.example.emoji.support.rect
 import com.example.emoji.support.width
 
 class EmojiMessageView @JvmOverloads constructor(
@@ -33,81 +30,55 @@ class EmojiMessageView @JvmOverloads constructor(
     private val tvMessageRect = Rect()
     private val flexboxRect = Rect()
 
-    private var setupText: MutableLiveData<String> = MutableLiveData<String>()
-    private var list = EmojiFactory().getEmoji()
+    var setupText: MutableLiveData<String> = MutableLiveData<String>()
+    var reactions = EmojiFactory().getEmoji()
 
-    private fun showAlertDialog() {
-        val gridView = GridView(context)
-        gridView.apply {
-            adapter = ArrayAdapter(context, android.R.layout.simple_list_item_1, list)
-            numColumns = 5
-        }
+    var messageText = "Message test"
+    var name = "Yana Glad"
+    var image: Int = R.drawable.ic_image
+    var onPlusClickLister: OnClickListener = OnClickListener { }
+    var showAlertDialog: () -> Unit = {}
 
-
-        val builder: AlertDialog.Builder = AlertDialog.Builder(context)
-        builder.setView(gridView)
-        val alert = builder.create()
-
-        gridView.onItemClickListener =
-            AdapterView.OnItemClickListener { parent, _, position, _ ->
-                setupText.value = (parent.getChildAt(position) as TextView).text.toString()
-                list.removeAt(position)
-                alert.hide()
-            }
-
-        alert.show()
-    }
+    val plus = EmojiView(context)
 
     init {
+        val typedArray: TypedArray = context.obtainStyledAttributes(
+            attrs,
+            R.styleable.EmojiMessageView,
+            defStyleAttrs,
+            defStyleRes
+        )
+
+        messageText = typedArray.getString(R.styleable.EmojiMessageView_message) ?: messageText
+        name = typedArray.getString(R.styleable.EmojiMessageView_message) ?: name
+        image = typedArray.getInteger(R.styleable.EmojiMessageView_image, image)
+
         LayoutInflater.from(context).inflate(R.layout.emoji_view_group, this, true)
 
         avatar = findViewById(R.id.avatar)
         messageView = findViewById(R.id.message_title)
+
+        setupValues(context)
+
         flexboxLayout = findViewById(R.id.flexbox)
 
         setupText.value = ""
 
-        val plus = EmojiView(context)
+
         plus.background = getDrawable(context, R.drawable.bg_custom_text_view)
         plus.tap_count = 0
         plus.text = "  +"
 
-        plus.setOnClickListener {
-            it.isSelected = !it.isSelected
-        }
+        plus.setOnClickListener(onPlusClickLister)
 
         flexboxLayout.addView(plus)
         flexboxLayout.requestLayout()
 
         setupText.observe((context as LifecycleOwner), {
-            val view = EmojiView(context)
-
-            view.apply {
-                text = setupText.value!!
-                if (setupText.value?.length!! >= 1) {
-                    background = getDrawable(context, R.drawable.bg_custom_text_view)
-                    tap_count = 1
-                    setOnClickListener {
-                        it.isSelected = !it.isSelected
-                    }
-                    flexboxLayout.addView(this)
-                    flexboxLayout.requestLayout()
-                }
-            }
+            addCustomEmoji(context)
         })
 
-
-        (flexboxLayout.getChildAt(0) as EmojiView).apply {
-            background = getDrawable(context, R.drawable.bg_custom_text_view)
-            tap_count = 0
-            setOnClickListener {
-                it.isSelected = !it.isSelected
-                if (list.isNotEmpty())
-                    showAlertDialog()
-                it.isSelected = !it.isSelected
-            }
-        }
-
+        setupPlusClickListener(context)
 
         for (i in 1 until flexboxLayout.childCount) {
             (flexboxLayout.getChildAt(i) as EmojiView).apply {
@@ -117,6 +88,45 @@ class EmojiMessageView @JvmOverloads constructor(
                 }
             }
         }
+    }
+
+    private fun addCustomEmoji(context: Context) {
+        val view = EmojiView(context)
+        view.apply {
+            text = setupText.value!!
+            if (setupText.value?.length!! >= 1) {
+                background = getDrawable(context, R.drawable.bg_custom_text_view)
+                tap_count = 1
+                setOnClickListener {
+                    it.isSelected = !it.isSelected
+                }
+                flexboxLayout.addView(this)
+                flexboxLayout.requestLayout()
+            }
+        }
+    }
+
+    private fun setupPlusClickListener(context: Context) {
+        (flexboxLayout.getChildAt(0) as EmojiView).apply {
+            background = getDrawable(context, R.drawable.bg_custom_text_view)
+            tap_count = 0
+            setOnClickListener {
+                it.isSelected = !it.isSelected
+                if (reactions.isNotEmpty())
+                    showAlertDialog()
+                it.isSelected = !it.isSelected
+            }
+        }
+    }
+
+    private fun setupValues(context: Context) {
+        avatar.setImageDrawable(getDrawable(context, image))
+        messageView.message.text = messageText
+        messageView.name.text = name
+        plus.setOnClickListener(onPlusClickLister)
+        if (flexboxLayout != null)
+            setupPlusClickListener(context)
+
     }
 
 
@@ -163,6 +173,8 @@ class EmojiMessageView @JvmOverloads constructor(
                 messageView.bottom - 50, r - 150
             )
         )
+
+        setupValues(context)
     }
 
     override fun generateDefaultLayoutParams(): LayoutParams =

@@ -43,7 +43,7 @@ class FlexBoxLayout(context: Context, attributeSet: AttributeSet) :
 
                 lineHeight = max(lineHeight, child.measuredHeight + layoutParams.verticalSpacing)
 
-                if ((x + childWidth) > width) {
+                if (x > width+ childWidth) {
                     x = paddingLeft
                     y += lineHeight
                 }
@@ -56,8 +56,7 @@ class FlexBoxLayout(context: Context, attributeSet: AttributeSet) :
             getMode(heightMeasureSpec) == AT_MOST && y + lineHeight < height
         ) height = y + lineHeight
 
-
-        setMeasuredDimension(width, height)
+        setMeasuredDimension(width, height + lineHeight)
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {

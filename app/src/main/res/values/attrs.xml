@@ -8,6 +8,12 @@
         <attr name="tap_count" format="integer" />
     </declare-styleable>
 
+    <declare-styleable name="EmojiMessageView">
+        <attr name="name" format="string" />
+        <attr name="message" format="string" />
+        <attr name="image" format="integer" />
+    </declare-styleable>
+
     <declare-styleable name="RoundCornerView">
         <attr name="src" format="reference" />
     </declare-styleable>

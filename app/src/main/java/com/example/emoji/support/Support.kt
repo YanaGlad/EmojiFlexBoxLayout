@@ -1,11 +1,8 @@
 package com.example.emoji.support
 
-import android.content.res.Resources
 import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.Px
-import kotlin.math.roundToInt
 
 
 fun View.width(): Int {
