@@ -39,17 +39,17 @@ class MessageLayout @JvmOverloads constructor(
         measureChildWithMargins(
             name,
             widthMeasureSpec,
-            0,
+            name.width(),
             heightMeasureSpec,
-            0
+            name.height()
         )
 
         measureChildWithMargins(
             message,
             widthMeasureSpec,
-            0,
+            message.width(),
             heightMeasureSpec,
-            0
+            message.height()
         )
 
 
