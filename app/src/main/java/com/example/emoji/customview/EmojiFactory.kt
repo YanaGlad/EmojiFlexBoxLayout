@@ -16,10 +16,7 @@ class EmojiFactory {
         "\uD83E\uDD76",
         "\uD83E\uDD2F",
         "\uD83E\uDD73",
-        "\uD83D\uDE2F\t"
-    )
-
-    fun getAnotherEmoji() : ArrayList<String> = arrayListOf(
+        "\uD83D\uDE2F\t",
         "\uD83D\uDE30\t",
         "\uD83D\uDE31",
         "\uD83E\uDD2C",

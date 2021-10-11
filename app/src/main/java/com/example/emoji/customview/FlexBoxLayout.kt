@@ -25,6 +25,7 @@ class FlexBoxLayout(context: Context, attributeSet: AttributeSet) :
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+
         val width = getSize(widthMeasureSpec) - paddingLeft - paddingRight
         var height = getSize(heightMeasureSpec) - paddingTop - paddingBottom
 
@@ -65,8 +66,8 @@ class FlexBoxLayout(context: Context, attributeSet: AttributeSet) :
         var y = paddingTop
 
         var count = 0
-        for (child in children) {
-            with(child) {
+        children.forEach {
+            with(it) {
                 if (visibility != View.GONE) {
 
                     val layoutParams = layoutParams as LayoutParamsWithSpacing
