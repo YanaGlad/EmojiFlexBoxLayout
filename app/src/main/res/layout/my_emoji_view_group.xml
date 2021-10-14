@@ -7,8 +7,8 @@
 
     <com.example.emoji.customview.RoundedImageView
         android:id="@+id/avatar"
-        android:layout_width="@dimen/user_icon_height"
-        android:layout_height="@dimen/user_icon_height"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:src="@drawable/ic_launcher_background" />
 
     <com.example.emoji.customview.MessageLayout
@@ -25,5 +25,6 @@
         android:layout_height="match_parent"
         android:layout_marginStart="50dp"
         android:layout_marginEnd="40dp" />
+
 
 </merge>
