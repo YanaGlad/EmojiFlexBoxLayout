@@ -8,6 +8,9 @@ import android.view.ViewGroup
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.children
 import com.example.emoji.R
+import com.example.emoji.support.height
+
+import com.example.emoji.support.width
 import kotlin.math.max
 
 
@@ -25,7 +28,6 @@ class FlexBoxLayout(context: Context, attributeSet: AttributeSet) :
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-
         val width = getSize(widthMeasureSpec) - paddingLeft - paddingRight
         var height = getSize(heightMeasureSpec) - paddingTop - paddingBottom
 
@@ -44,11 +46,10 @@ class FlexBoxLayout(context: Context, attributeSet: AttributeSet) :
 
                 lineHeight = max(lineHeight, child.measuredHeight + layoutParams.verticalSpacing)
 
-                if (x > width+ childWidth) {
+                if (x > width - 50) {
                     x = paddingLeft
                     y += lineHeight
                 }
-
                 x += childWidth + layoutParams.horizontalSpacing
             }
         }
@@ -69,7 +70,6 @@ class FlexBoxLayout(context: Context, attributeSet: AttributeSet) :
         children.forEach {
             with(it) {
                 if (visibility != View.GONE) {
-
                     val layoutParams = layoutParams as LayoutParamsWithSpacing
                     val childWidth = measuredWidth
 

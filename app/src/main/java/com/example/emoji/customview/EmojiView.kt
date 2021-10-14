@@ -22,8 +22,13 @@ class EmojiView @JvmOverloads constructor(
         }
 
     var tap_count: Int = 0
+        set(value) {
+            field = value
+            requestLayout()
+        }
+
     private var customSize = 0f
-    private var defaultSize = 42f
+    private val defaultSize = 42f
     private val defaultEmoji = "\uD83E\uDD70"
 
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {

@@ -3,6 +3,7 @@ package com.example.emoji.support
 import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
+import java.lang.Math.abs
 
 
 fun View.width(): Int {
@@ -16,8 +17,22 @@ fun View.height(): Int {
 }
 
 fun View.layout(rect: Rect) = layout(rect.left, rect.top, rect.right, rect.bottom)
+fun View.layoutLeft(rect: Rect) = layout(rect.right, rect.top, rect.right + abs(left), rect.bottom)
 
 fun View.rect(rect: Rect, l: Int, t: Int): Rect {
+    val viewLayoutParams: ViewGroup.MarginLayoutParams =
+        this.layoutParams as ViewGroup.MarginLayoutParams
+
+    rect.apply {
+        left = l + viewLayoutParams.leftMargin
+        top = t + viewLayoutParams.topMargin
+        right = rect.left + measuredWidth + viewLayoutParams.rightMargin
+        bottom = rect.top + measuredHeight + viewLayoutParams.bottomMargin
+    }
+    return rect
+}
+
+fun View.rectLeft(rect: Rect, l: Int, t: Int): Rect {
     val viewLayoutParams: ViewGroup.MarginLayoutParams =
         this.layoutParams as ViewGroup.MarginLayoutParams
 
