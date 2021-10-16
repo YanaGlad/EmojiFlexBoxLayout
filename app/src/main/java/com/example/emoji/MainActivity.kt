@@ -3,6 +3,7 @@ package com.example.emoji
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.emoji.databinding.ActivityMainBinding
+import com.example.emoji.fragments.BottomSheetFragment
 
 
 class MainActivity : AppCompatActivity() {

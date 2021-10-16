@@ -6,20 +6,24 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.emoji.R
 import com.example.emoji.customview.EmojiFactory
 import com.example.emoji.customview.EmojiMessageView
 import com.example.emoji.databinding.MessageItemBinding
+import com.example.emoji.fragments.BottomSheetFragment
+import com.example.emoji.model.Reaction
 import com.example.emoji.model.UserModel
 
 
-class UserDelegate internal constructor() : AdapterDelegate {
+class UserDelegate constructor(val supportFragmentManager: FragmentManager) : AdapterDelegate {
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         UserViewHolder(
             view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.message_item, parent, false)
+                .inflate(R.layout.message_item, parent, false),
+            supportFragmentManager = supportFragmentManager
         )
 
     override fun onBindViewHolder(
@@ -34,51 +38,37 @@ class UserDelegate internal constructor() : AdapterDelegate {
         item is UserDelegateItem
 
     class UserViewHolder(
-        val view: View
+        val view: View,
+        val supportFragmentManager: FragmentManager
     ) : RecyclerView.ViewHolder(view) {
 
         private lateinit var item: UserModel
         private val binding = MessageItemBinding.bind(view)
 
-        private fun defaultAlertDialog(reactions: ArrayList<String>, emojiView: EmojiMessageView) {
-            val gridView = GridView(view.context)
-            gridView.apply {
-                adapter = ArrayAdapter(
-                    context,
-                    android.R.layout.simple_list_item_1,
-                    reactions
-                )
-                numColumns = 5
-            }
-
-            val alert: AlertDialog = AlertDialog.Builder(view.context)
-                .setView(gridView)
-                .create()
-
-            gridView.onItemClickListener =
-                AdapterView.OnItemClickListener { parent, _, position, _ ->
-                    emojiView.addNewEmoji((parent.getChildAt(position) as TextView).text.toString())
-                    reactions.removeAt(position)
-                    alert.hide()
-                }
-
-            if (reactions.isNotEmpty())
-                alert.show()
-            else Toast.makeText(view.context, "Кончились эмоджи!", Toast.LENGTH_SHORT).show()
-        }
-
         @SuppressLint("SetTextI18n")
         fun bind(userModel: UserModel) {
             item = userModel
+
             binding.messsageView.name = userModel.name
             binding.messsageView.messageText = userModel.message
             binding.messsageView.image = userModel.picture
+
             val reactions: ArrayList<String> = EmojiFactory().getEmoji()
-            binding.messsageView.showAlertDialog =
-                { defaultAlertDialog(reactions, binding.messsageView) }
+            val reactList: ArrayList<Reaction> = arrayListOf()
+            for (reaction in reactions) {
+                reactList.add(Reaction(1, reaction))
+            }
+
+            val bottomSheet = BottomSheetFragment(reactList) { reaction, position ->
+                binding.messsageView.addNewEmoji(reaction.emoji)
+                reactions.removeAt(position)
+            }
+
+            binding.messsageView.showAlertDialog = {  bottomSheet.show(supportFragmentManager, "bottom_tag") }
+
+            binding.messsageView.messageView.longPressed = Runnable {
+                bottomSheet.show(supportFragmentManager, "bottom_tag")
+            }
         }
-
     }
-
-
 }

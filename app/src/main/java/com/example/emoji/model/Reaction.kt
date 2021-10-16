@@ -1,4 +1,6 @@
 package com.example.emoji.model
 
-class Reaction {
-}
+data class Reaction(
+    val user_id : Long,
+    val emoji : String //temp
+)
