@@ -7,7 +7,9 @@ import com.example.emoji.fragments.delegateItem.DateDelegateItem
 import com.example.emoji.fragments.delegateItem.DelegateItem
 import com.example.emoji.fragments.delegateItem.UserDelegateItem
 import com.example.emoji.model.DateModel
+import com.example.emoji.model.PutValueToMonth
 import com.example.emoji.model.UserModel
+import java.util.*
 
 
 fun View.width(): Int {
@@ -40,33 +42,13 @@ fun View.rectLeft(rect: Rect, r: Int, t: Int): Rect {
         this.layoutParams as ViewGroup.MarginLayoutParams
 
     rect.apply {
-        left = rect.right - measuredWidth - viewLayoutParams.leftMargin // l + viewLayoutParams.leftMargin
+        left = rect.right - measuredWidth - viewLayoutParams.leftMargin
         top = t + viewLayoutParams.topMargin
-        right = r - viewLayoutParams.rightMargin//  rect.left + measuredWidth + viewLayoutParams.rightMargin
+        right = r - viewLayoutParams.rightMargin
         bottom = rect.top + measuredHeight + viewLayoutParams.bottomMargin
     }
     return rect
 }
-
-fun View.rectLeft(
-    rect: Rect,
-    leftBorder: Int,
-    topBorder: Int,
-    rightBorder: Int
-): Rect {
-    val viewLayoutParams = this.layoutParams as ViewGroup.MarginLayoutParams
-
-    viewLayoutParams.also {
-        rect.apply {
-            left = rightBorder - leftBorder - it.leftMargin
-            top = topBorder + it.topMargin
-            right = rightBorder + it.rightMargin
-            bottom = top + measuredHeight + it.bottomMargin
-        }
-    }
-    return rect
-}
-
 
 fun View.rect(
     rect: Rect,
@@ -87,11 +69,12 @@ fun View.rect(
     return rect
 }
 
+val valueToInt = PutValueToMonth()
 fun List<UserModel>.toDelegateItemListWithDate(): List<DelegateItem> {
     val delegateItemList: MutableList<DelegateItem> = mutableListOf()
     var lastDate = ""
     this
-        .sortedBy { it.date.toInt() }
+        .sortedBy { it.date.toInt() + valueToInt.getValueByMonth(it.month.lowercase(Locale.getDefault())) }
         .forEach { userModel ->
             if (userModel.date != lastDate) {
                 delegateItemList.add(

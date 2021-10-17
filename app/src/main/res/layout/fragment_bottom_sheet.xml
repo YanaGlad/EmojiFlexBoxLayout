@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@color/not_selected">
 
-  <LinearLayout
+    <LinearLayout
         android:id="@+id/layout_top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -14,8 +14,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.appcompat.widget.AppCompatImageView
-
-            android:id="@+id/appCompatImageView"
+            android:id="@+id/line"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"

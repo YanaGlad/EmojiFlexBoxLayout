@@ -2,17 +2,14 @@
 
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:focusable="true"
-    android:layout_height="500dp">
+    android:layout_height="@dimen/scroll_height"
+    android:focusable="true">
 
     <androidx.appcompat.widget.LinearLayoutCompat
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/vertical_bottom_sheet"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
+        android:layout_height="@dimen/scroll_height"
         android:background="#1C1C1C"
-        android:orientation="vertical">
+        android:orientation="vertical"/>
 
-
-    </androidx.appcompat.widget.LinearLayoutCompat>
 </androidx.core.widget.NestedScrollView>

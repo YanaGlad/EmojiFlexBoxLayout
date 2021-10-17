@@ -21,7 +21,7 @@ class DateDelegate : AdapterDelegate {
 
     override fun isOfViewType(item: DelegateItem): Boolean = item is DateDelegateItem
 
-    class ViewHolder(val binding : DateItemBinding) : RecyclerView.ViewHolder(binding.root){
+    class ViewHolder(private val binding : DateItemBinding) : RecyclerView.ViewHolder(binding.root){
         fun bind(dateModel : DateModel) {
             binding.dateValue.text = "${dateModel.dateNumber} ${dateModel.month}"
         }

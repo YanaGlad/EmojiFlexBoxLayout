@@ -18,7 +18,6 @@
         android:layout_marginLeft="8dp"
         android:background="@drawable/bg_message_view" />
 
-
     <com.example.emoji.customview.FlexBoxLayout
         android:id="@+id/flexbox"
         android:layout_width="wrap_content"

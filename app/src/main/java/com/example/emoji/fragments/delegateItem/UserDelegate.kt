@@ -4,20 +4,17 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.emoji.R
 import com.example.emoji.customview.EmojiFactory
-import com.example.emoji.customview.EmojiMessageView
 import com.example.emoji.databinding.MessageItemBinding
 import com.example.emoji.fragments.BottomSheetFragment
 import com.example.emoji.model.Reaction
 import com.example.emoji.model.UserModel
 
 
-class UserDelegate constructor(val supportFragmentManager: FragmentManager) : AdapterDelegate {
+class UserDelegate constructor(private val supportFragmentManager: FragmentManager) : AdapterDelegate {
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         UserViewHolder(
@@ -49,12 +46,16 @@ class UserDelegate constructor(val supportFragmentManager: FragmentManager) : Ad
         fun bind(userModel: UserModel) {
             item = userModel
 
-            binding.messsageView.name = userModel.name
-            binding.messsageView.messageText = userModel.message
-            binding.messsageView.image = userModel.picture
+            binding.messsageView.apply {
+                isMy = userModel.isMe
+                name = userModel.name
+                messageText = userModel.message
+                image = userModel.picture
+            }
 
             val reactions: ArrayList<String> = EmojiFactory().getEmoji()
             val reactList: ArrayList<Reaction> = arrayListOf()
+
             for (reaction in reactions) {
                 reactList.add(Reaction(1, reaction))
             }
@@ -64,7 +65,7 @@ class UserDelegate constructor(val supportFragmentManager: FragmentManager) : Ad
                 reactions.removeAt(position)
             }
 
-            binding.messsageView.showAlertDialog = {  bottomSheet.show(supportFragmentManager, "bottom_tag") }
+            binding.messsageView.showAlertDialog = { bottomSheet.show(supportFragmentManager, "bottom_tag") }
 
             binding.messsageView.messageView.longPressed = Runnable {
                 bottomSheet.show(supportFragmentManager, "bottom_tag")
