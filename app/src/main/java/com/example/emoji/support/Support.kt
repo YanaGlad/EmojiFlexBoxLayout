@@ -8,7 +8,7 @@ import com.example.emoji.fragments.delegateItem.DelegateItem
 import com.example.emoji.fragments.delegateItem.UserDelegateItem
 import com.example.emoji.model.DateModel
 import com.example.emoji.model.PutValueToMonth
-import com.example.emoji.model.UserModel
+import com.example.emoji.model.MessageModel
 import java.util.*
 
 
@@ -70,7 +70,7 @@ fun View.rect(
 }
 
 val valueToInt = PutValueToMonth()
-fun List<UserModel>.toDelegateItemListWithDate(): List<DelegateItem> {
+fun List<MessageModel>.toDelegateItemListWithDate(): List<DelegateItem> {
     val delegateItemList: MutableList<DelegateItem> = mutableListOf()
     var lastDate = ""
     this

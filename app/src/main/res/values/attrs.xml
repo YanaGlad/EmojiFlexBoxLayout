@@ -12,6 +12,7 @@
         <attr name="name" format="string" />
         <attr name="message" format="string" />
         <attr name="image" format="integer" />
+        <attr name="isMe" format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="RoundCornerView">

@@ -18,6 +18,7 @@ class EmojiAdapter internal constructor(private val clickListener : OnEmojiClick
         fun onEmojiClick(reaction: Reaction, position: Int)
     }
 
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EmojiViewHolder {
         val holder = EmojiViewHolder(
             EmojiItemBinding.inflate(

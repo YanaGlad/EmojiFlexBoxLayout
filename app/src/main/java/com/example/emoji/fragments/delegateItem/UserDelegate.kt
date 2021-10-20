@@ -11,7 +11,7 @@ import com.example.emoji.customview.EmojiFactory
 import com.example.emoji.databinding.MessageItemBinding
 import com.example.emoji.fragments.BottomSheetFragment
 import com.example.emoji.model.Reaction
-import com.example.emoji.model.UserModel
+import com.example.emoji.model.MessageModel
 
 
 class UserDelegate constructor(private val supportFragmentManager: FragmentManager) : AdapterDelegate {
@@ -28,8 +28,10 @@ class UserDelegate constructor(private val supportFragmentManager: FragmentManag
         item: DelegateItem,
         position: Int
     ) {
-        (holder as UserViewHolder).bind(item.content() as UserModel)
+
+        (holder as UserViewHolder).bind(item.content() as MessageModel)
     }
+
 
     override fun isOfViewType(item: DelegateItem): Boolean =
         item is UserDelegateItem
@@ -39,30 +41,32 @@ class UserDelegate constructor(private val supportFragmentManager: FragmentManag
         val supportFragmentManager: FragmentManager
     ) : RecyclerView.ViewHolder(view) {
 
-        private lateinit var item: UserModel
         private val binding = MessageItemBinding.bind(view)
 
+
         @SuppressLint("SetTextI18n")
-        fun bind(userModel: UserModel) {
-            item = userModel
+        fun bind(messageModel: MessageModel) {
 
-            binding.messsageView.apply {
-                isMy = userModel.isMe
-                name = userModel.name
-                messageText = userModel.message
-                image = userModel.picture
+            val hash = binding.hashCode()
+            val pos = adapterPosition
+            val model = messageModel
+
+            if (messageModel.isMe) {
+                binding.messsageView.setIsMy(true)
+                binding.messsageView.setUserName(messageModel.name)
+                binding.messsageView.setMessage(messageModel.message)
+                binding.messsageView.setAvatar(messageModel.picture)
+
+            } else {
+                binding.messsageView.setIsMy(false)
+                binding.messsageView.setUserName(messageModel.name)
+                binding.messsageView.setMessage(messageModel.message)
+                binding.messsageView.setAvatar(messageModel.picture)
             }
 
-            val reactions: ArrayList<String> = EmojiFactory().getEmoji()
-            val reactList: ArrayList<Reaction> = arrayListOf()
-
-            for (reaction in reactions) {
-                reactList.add(Reaction(1, reaction))
-            }
-
-            val bottomSheet = BottomSheetFragment(reactList) { reaction, position ->
+            val bottomSheet = BottomSheetFragment(messageModel.reactList) { reaction, position ->
                 binding.messsageView.addNewEmoji(reaction.emoji)
-                reactions.removeAt(position)
+                messageModel.updateMessageEmojiList(position)
             }
 
             binding.messsageView.showAlertDialog = { bottomSheet.show(supportFragmentManager, "bottom_tag") }
@@ -70,6 +74,7 @@ class UserDelegate constructor(private val supportFragmentManager: FragmentManag
             binding.messsageView.messageView.longPressed = Runnable {
                 bottomSheet.show(supportFragmentManager, "bottom_tag")
             }
+
         }
     }
 }

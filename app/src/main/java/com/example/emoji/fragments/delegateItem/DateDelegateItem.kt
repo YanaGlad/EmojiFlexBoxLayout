@@ -7,5 +7,5 @@ data class DateDelegateItem(
     val value : DateModel
 ): DelegateItem {
     override fun content(): Any = value
-    override fun id(): Any = value.hashCode()
+    override fun id(): Int = value.hashCode()
 }
