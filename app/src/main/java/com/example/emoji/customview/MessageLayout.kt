@@ -8,7 +8,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import com.example.emoji.R
 import com.example.emoji.support.height
@@ -26,7 +25,7 @@ class MessageLayout @JvmOverloads constructor(
 ) : ViewGroup(context, attrs, defStyleAttrs, defStyleRes), View.OnTouchListener {
 
     val name: TextView
-    var message: TextView
+    private var message: TextView
     private val nameRect = Rect()
     private val messageRect = Rect()
     private val heightCorrection = 50
@@ -34,10 +33,10 @@ class MessageLayout @JvmOverloads constructor(
 
     var isMy = false
     set(value) {
-        if(value)
-            background = getDrawable(context, R.drawable.my_message_gradient)
+        background = if(value)
+            getDrawable(context, R.drawable.my_message_gradient)
         else
-            background = getDrawable(context, R.drawable.bg_custom_text_view)
+            getDrawable(context, R.drawable.bg_custom_text_view)
         field = value
     }
 

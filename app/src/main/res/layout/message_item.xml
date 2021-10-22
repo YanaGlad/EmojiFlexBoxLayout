@@ -6,6 +6,5 @@
     android:id="@+id/messsage_view"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    app:isMe = "false"
-    />
+    app:isMe="false" />
 

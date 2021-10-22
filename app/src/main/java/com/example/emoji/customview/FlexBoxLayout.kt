@@ -14,12 +14,14 @@ import kotlin.math.max
 class FlexBoxLayout(context: Context, attributeSet: AttributeSet) :
     ViewGroup(context, attributeSet) {
     private var lineHeight: Int = 0
-    private var columnCount = 0
+    private var countSpaces: Int = 0
+
+    private var columnCount = -1
     var reversed = false
 
     init {
         context.withStyledAttributes(attributeSet, R.styleable.MyFlowLayout) {
-            columnCount = getInteger(R.styleable.MyFlowLayout_column_count, 0)
+            columnCount = getInteger(R.styleable.MyFlowLayout_column_count, -1)
         }
     }
 
@@ -40,21 +42,23 @@ class FlexBoxLayout(context: Context, attributeSet: AttributeSet) :
                 val layoutParams = child.layoutParams as LayoutParamsWithSpacing
                 child.measure(makeMeasureSpec(width, AT_MOST), childHeightMeasureSpec)
                 val childWidth = child.measuredWidth
-
                 lineHeight = max(lineHeight, child.measuredHeight + layoutParams.verticalSpacing)
 
-                val value = if (reversed) x + childWidth else x
-                if (value > width) {
+
+                x += childWidth + layoutParams.horizontalSpacing
+
+                if (x > width) {
                     x = paddingLeft
                     y += lineHeight
+                    countSpaces++
+                    x += childWidth + layoutParams.horizontalSpacing
                 }
-                x += childWidth + layoutParams.horizontalSpacing
             }
         }
 
         if (getMode(heightMeasureSpec) == UNSPECIFIED ||
-            getMode(heightMeasureSpec) == AT_MOST && y + lineHeight < height
-        ) height = y + lineHeight
+            getMode(heightMeasureSpec) == AT_MOST && y + lineHeight < height || x > width
+        ) height = y
 
         setMeasuredDimension(width, height + lineHeight)
     }
@@ -62,7 +66,7 @@ class FlexBoxLayout(context: Context, attributeSet: AttributeSet) :
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         val width = right - left
         var x = paddingLeft
-        var y = paddingTop
+        var y = paddingTop// + lineHeight
 
         var count = 0
         children.forEach {
@@ -75,13 +79,12 @@ class FlexBoxLayout(context: Context, attributeSet: AttributeSet) :
                         x = paddingLeft
                         y += lineHeight
                         count = 0
-                        requestLayout()
                     }
                     count++
 
                     layout(
                         x, y, x + childWidth,
-                        y + measuredHeight
+                        y + measuredHeight // + lineHeight
                     )
 
                     x += layoutParams.horizontalSpacing

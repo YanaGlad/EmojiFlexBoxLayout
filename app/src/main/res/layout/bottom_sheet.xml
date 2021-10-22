@@ -10,6 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/scroll_height"
         android:background="#1C1C1C"
-        android:orientation="vertical"/>
+        android:orientation="vertical" />
 
 </androidx.core.widget.NestedScrollView>

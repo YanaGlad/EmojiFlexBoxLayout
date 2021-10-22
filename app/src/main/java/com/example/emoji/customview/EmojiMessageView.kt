@@ -25,12 +25,12 @@ class EmojiMessageView @JvmOverloads constructor(
     private val tvMessageRect = Rect()
     private val flexboxRect = Rect()
 
-   var isMy = false
+    var isMy = false
 
     fun setIsMy(value: Boolean) {
         messageView.isMy = value
         isMy = value
-        if(value)
+        if (value)
             messageView.name.visibility = View.GONE
         else messageView.name.visibility = View.VISIBLE
     }
@@ -41,7 +41,7 @@ class EmojiMessageView @JvmOverloads constructor(
     private val topCorrection = 90
     var showAlertDialog: () -> Unit = {}
 
-    var messsageText = ""
+    private var messsageText = ""
     var nameText = "Yana Glad"
 
     init {
@@ -58,20 +58,24 @@ class EmojiMessageView @JvmOverloads constructor(
         flexboxLayout = findViewById(R.id.flexbox)
         messageView.requestLayout()
 
-        initStyledAtttributes(typedArray)
+        initStyledAttributes(typedArray)
 
-        plus.apply {
-            background = getDrawable(context, R.drawable.bg_custom_text_view)
-            tapCount = 0
-            text = "  +"
-            visibility = View.INVISIBLE
-        }
+        initPlus(context)
 
         setupPlusClickListener()
         addCustomEmoji(plus)
         setupClickListeners(context)
 
         typedArray.recycle()
+    }
+
+    fun initPlus(context: Context) {
+        plus.apply {
+            background = getDrawable(context, R.drawable.bg_custom_text_view)
+            tapCount = 0
+            text = "  +"
+            visibility = INVISIBLE
+        }
     }
 
     private fun setupClickListeners(context: Context) {
@@ -85,7 +89,7 @@ class EmojiMessageView @JvmOverloads constructor(
         }
     }
 
-    internal fun initStyledAtttributes(typedArray: TypedArray) {
+    private fun initStyledAttributes(typedArray: TypedArray) {
         setMessage(typedArray.getString(R.styleable.EmojiMessageView_message) ?: messsageText)
         setUserName(typedArray.getString(R.styleable.EmojiMessageView_message) ?: nameText)
         setAvatar(typedArray.getInteger(R.styleable.EmojiMessageView_image, R.drawable.ic_launcher_background))
@@ -109,12 +113,18 @@ class EmojiMessageView @JvmOverloads constructor(
         requestLayout()
     }
 
-    private fun addCustomEmoji(view: EmojiView) {
-        flexboxLayout.addView(view, 0)
-        flexboxLayout.requestLayout()
+    fun clearFlexBox() {
+        flexboxLayout.removeAllViews()
     }
 
-    private fun setupPlusClickListener() {
+    fun addCustomEmoji(view: EmojiView) {
+        flexboxLayout.also {
+            it.addView(view, 0)
+            it.requestLayout()
+        }
+    }
+
+    fun setupPlusClickListener() {
         plus.apply {
             background = getDrawable(context, R.drawable.bg_custom_text_view)
             tapCount = 0
@@ -147,7 +157,7 @@ class EmojiMessageView @JvmOverloads constructor(
 
         measureChildWithMargins(avatar, widthMeasureSpec, 0, heightMeasureSpec, 0)
         measureChildWithMargins(messageView, widthMeasureSpec, 0, heightMeasureSpec, 0)
-  //      if (isMy) flexboxLayout.reversed = true
+        //      if (isMy) flexboxLayout.reversed = true
 
         val msgHeight = messageView.height()
         measureChildWithMargins(
@@ -165,7 +175,7 @@ class EmojiMessageView @JvmOverloads constructor(
         setMeasuredDimension(
             resolveSize(totalWidth, widthMeasureSpec),
             resolveSize(
-                 msgHeight + flex - 60,
+                msgHeight + flex - 60,
                 heightMeasureSpec
             )
         )
@@ -183,11 +193,11 @@ class EmojiMessageView @JvmOverloads constructor(
 //            )
 //
 //        } else {
-            avatar.layout(avatar.rect(avatarRect, 0, 0))
-            messageView.layout(messageView.rect(tvMessageRect, avatar.right, 0))
+        avatar.layout(avatar.rect(avatarRect, 0, 0))
+        messageView.layout(messageView.rect(tvMessageRect, avatar.right, 0))
 
-            layoutFlexBox(20, messageView.bottom - topCorrection, r - leftRightCorrection)
-    //    }
+        layoutFlexBox(20, messageView.bottom - topCorrection, r - leftRightCorrection)
+        //    }
     }
 
     private fun layoutFlexBox(leftBorder: Int, rightBorder: Int, topBorder: Int) {
