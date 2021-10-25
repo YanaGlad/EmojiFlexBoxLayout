@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/channels_nav_graph"
+        android:icon="@drawable/ic_channels"
+        android:title="" />
+    <item
+        android:id="@+id/people_nav_graph"
+        android:icon="@drawable/ic_people"
+        android:title="" />
+
+    <item
+        android:id="@+id/profile_nav_graph"
+        android:icon="@drawable/ic_profile"
+        android:title="" />
+</menu>

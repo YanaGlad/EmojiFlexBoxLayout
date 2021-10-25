@@ -11,4 +11,9 @@
         <item name="android:background">@color/not_selected</item>
     </style>
 
+    <style name="AppSelectableItem">
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
 </resources>
