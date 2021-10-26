@@ -12,13 +12,24 @@
         tools:layout="@layout/fragment_channels" >
         <action
             android:id="@+id/action_channelsFragment_to_messageFragment"
-            app:destination="@id/messageFragment" />
+            app:destination="@id/messageFragment"
+            app:enterAnim="@anim/slide_enter_anim"
+            app:exitAnim="@anim/slide_exit_anim"
+            app:popEnterAnim="@anim/slide_pop_enter_anim"
+            app:popExitAnim="@anim/slide_pop_exit_anim" />
     </fragment>
 
     <fragment
         android:id="@+id/messageFragment"
         android:name="com.example.emoji.fragments.MessageFragment"
         android:label="fragment_channels"
-        tools:layout="@layout/fragment_channels" />
+        tools:layout="@layout/fragment_channels" >
+        <argument
+            android:name="stream"
+            app:argType="com.example.emoji.model.StreamModel" />
+        <argument
+            android:name="topic"
+            app:argType="com.example.emoji.model.TopicModel" />
+    </fragment>
 
 </navigation>

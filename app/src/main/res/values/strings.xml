@@ -9,4 +9,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="enter_message">Написать..</string>
     <string name="out_of_emoji">Кончились эмоджи!</string>
+    <string name="search">Search...</string>
+    <string name="users_search">Users...</string>
 </resources>

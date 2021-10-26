@@ -19,6 +19,5 @@ class PagerAdapter(
     fun update(fragments : List<Fragment>){
         this.fragments.clear()
         this.fragments.addAll(fragments)
-        notifyDataSetChanged()
     }
 }

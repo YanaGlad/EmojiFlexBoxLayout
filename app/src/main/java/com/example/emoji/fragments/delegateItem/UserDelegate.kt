@@ -12,7 +12,7 @@ import com.example.emoji.model.MessageModel
 
 class UserDelegate constructor(private val onUserClick: OnUserDelegateClickListener) : AdapterDelegate {
 
-    interface OnUserDelegateClickListener {
+    fun interface OnUserDelegateClickListener {
         fun onUserClick(item: MessageModel, position: Int)
     }
 
@@ -53,9 +53,7 @@ class UserDelegate constructor(private val onUserClick: OnUserDelegateClickListe
                 clearFlexBox()
                 initPlus(context)
                 addCustomEmoji(plus)
-                setupPlusClickListener()
-
-                showAlertDialog = { onUserClick.onUserClick(messageModel, adapterPosition) }
+                setupPlusClickListener { onUserClick.onUserClick(messageModel, adapterPosition) }
 
                 for (emoji in messageModel.listReactions) {
                     addNewEmoji(emoji.emoji)

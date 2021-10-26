@@ -6,20 +6,34 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.emoji.R
+import com.example.emoji.databinding.FragmentMessageBinding
+import com.example.emoji.databinding.FragmentPeopleBinding
+import com.example.emoji.stub.MessageFactory
 
 
 class PeopleFragment : Fragment() {
 
-   override fun onCreate(savedInstanceState: Bundle?) {
+    private lateinit var adapter : UserAdapter
+
+    private var _binding: FragmentPeopleBinding? = null
+    private val binding get() = _binding!!
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
+        _binding = FragmentPeopleBinding.inflate(layoutInflater)
+        adapter = UserAdapter()
+        binding.usersRecycler.adapter = adapter
 
-        return inflater.inflate(R.layout.fragment_people, container, false)
+        adapter.submitList(MessageFactory().getUsers())
+
+        return binding.root
     }
 
 }
