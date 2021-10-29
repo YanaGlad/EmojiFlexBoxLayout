@@ -14,17 +14,27 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatEditText
-        android:id="@+id/searchView"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:background="#1E1E1E"
-        android:hint="@string/search"
-        android:textSize="25sp"
-        android:layout_marginStart="40sp"
-        android:textColorHint="@color/white"
-        android:textColor="@color/white"
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/search_img"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="12dp"
+        android:src="@drawable/ic_search"
+        app:layout_constraintBottom_toBottomOf="@+id/searchView"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchView"
+        android:layout_width="0dp"
+        android:layout_height="80dp"
+        style="@style/SearchStyled"
+        app:searchIcon="@null"
+        android:layout_margin="12dp"
+        android:hint="@string/search"
+        android:textColorHint="@color/white"
+        android:textSize="25sp"
+        app:layout_constraintEnd_toStartOf="@+id/search_img"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
