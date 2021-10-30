@@ -14,6 +14,8 @@ import com.example.emoji.model.StreamModel
 import com.example.emoji.model.TopicModel
 import com.example.emoji.stub.MessageFactory
 import com.example.emoji.support.toDelegateStreamsItemList
+import java.util.*
+import kotlin.collections.ArrayList
 
 class StreamFragment : Fragment() {
     private var subscribed = false
@@ -22,7 +24,7 @@ class StreamFragment : Fragment() {
         override fun onSearch(text: String) {
             streamsStubs = MessageFactory().getStreamsStub()
                 streamsStubs = streamsStubs.filter {
-                    it.title.startsWith("#$text")
+                    it.title.lowercase(Locale.getDefault()).startsWith("#$text")
                 } as ArrayList<StreamModel>
 
             val delegateList = streamsStubs.toDelegateStreamsItemList(-1)

@@ -4,14 +4,9 @@ import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.example.emoji.MainFragment
-import com.example.emoji.MainViewModel
 import com.example.emoji.R
 import com.example.emoji.ToolbarHolder
 import com.example.emoji.customview.EmojiFactory
@@ -24,7 +19,11 @@ import com.example.emoji.model.Reaction
 import com.example.emoji.model.StreamModel
 import com.example.emoji.model.TopicModel
 import com.example.emoji.stub.MessageFactory
+import com.example.emoji.support.MyCoolSnackbar
 import com.example.emoji.support.toDelegateItemListWithDate
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 
 
 class MessageFragment : Fragment() {
@@ -49,7 +48,7 @@ class MessageFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentMessageBinding.inflate(layoutInflater)
 
@@ -131,32 +130,50 @@ class MessageFragment : Fragment() {
 
     private val suggestReactions: ArrayList<Reaction> = arrayListOf()
 
-    fun showBottomSheetFragment(messageId: Int) {
-       BottomSheetFragment(suggestReactions) { reaction, _ ->
-           updateElementWithReaction(messageId, reaction)
-           mainAdapter.submitList(usersStub.toDelegateItemListWithDate())
+    private fun showBottomSheetFragment(messageId: Int) {
+        BottomSheetFragment(suggestReactions) { reaction, _ ->
+            updateElementWithReaction(messageId, reaction)
+            mainAdapter.submitList(usersStub.toDelegateItemListWithDate())
         }.show(childFragmentManager, "bottom_tag")
     }
 
     private fun updateElementWithReaction(messageId: Int, reaction: Reaction) {
         usersStub.indexOfFirst { it.id == messageId }.let { position ->
             val oldElement = usersStub[position]
-            val newReaction = oldElement.listReactions.toMutableSet().apply {
-                add(reaction)
-            }
 
-            usersStub.removeAt(position)
-            val newElement = MessageModel(
-                oldElement.id,
-                oldElement.name,
-                oldElement.message,
-                oldElement.picture,
-                oldElement.date,
-                oldElement.month,
-                oldElement.isMe,
-                newReaction
-            )
-            usersStub.add(position, newElement)
+            val disposable = Single.just(oldElement.listReactions)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .flatMap { set ->
+                    Single.just(set.toMutableSet())
+                }
+                .subscribe(
+                    {
+                        it.add(reaction)
+                        usersStub.removeAt(position)
+                        val newElement = MessageModel(
+                            oldElement.id,
+                            oldElement.name,
+                            oldElement.message,
+                            oldElement.picture,
+                            oldElement.date,
+                            oldElement.month,
+                            oldElement.isMe,
+                            it
+                        )
+                        usersStub.add(position, newElement)
+                        mainAdapter.submitList(usersStub.toDelegateItemListWithDate())
+                    },
+                    {
+                        MyCoolSnackbar(
+                            layoutInflater,
+                            binding.root,
+                            "Ошибка!"
+                        )
+                            .makeSnackBar()
+                            .show()
+                    }
+                )
         }
     }
 
@@ -164,7 +181,7 @@ class MessageFragment : Fragment() {
         mainAdapter = MainAdapter()
 
         mainAdapter.apply {
-            addDelegate(UserDelegate { item, position ->
+            addDelegate(UserDelegate { item, _ ->
                 showBottomSheetFragment(item.id)
             })
             addDelegate(DateDelegate())
