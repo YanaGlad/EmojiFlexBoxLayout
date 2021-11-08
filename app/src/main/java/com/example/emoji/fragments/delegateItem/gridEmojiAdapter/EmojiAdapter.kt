@@ -1,6 +1,5 @@
 package com.example.emoji.fragments.delegateItem.gridEmojiAdapter
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -10,9 +9,7 @@ import com.example.emoji.databinding.EmojiItemBinding
 import com.example.emoji.model.Reaction
 
 class EmojiAdapter internal constructor(private val clickListener : OnEmojiClickListener) :
-    ListAdapter<Reaction, EmojiAdapter.EmojiViewHolder>(
-        OperationDiffUtil()
-    ) {
+    ListAdapter<Reaction, EmojiAdapter.EmojiViewHolder>(OperationDiffUtil()) {
 
     interface OnEmojiClickListener {
         fun onEmojiClick(reaction: Reaction, position: Int)
@@ -57,7 +54,6 @@ class EmojiAdapter internal constructor(private val clickListener : OnEmojiClick
 
         private lateinit var item : Reaction
 
-        @SuppressLint("SetTextI18n")
         fun bind(reaction: Reaction) {
             item = reaction
             binding.emoji.text = reaction.emoji

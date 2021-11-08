@@ -3,7 +3,11 @@ package com.example.emoji.customview
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
-import android.view.View.MeasureSpec.*
+import android.view.View.MeasureSpec.getMode
+import android.view.View.MeasureSpec.getSize
+import android.view.View.MeasureSpec.makeMeasureSpec
+import android.view.View.MeasureSpec.UNSPECIFIED
+import android.view.View.MeasureSpec.AT_MOST
 import android.view.ViewGroup
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.children
@@ -95,11 +99,17 @@ class FlexBoxLayout(context: Context, attributeSet: AttributeSet) :
     }
 
     override fun generateDefaultLayoutParams(): LayoutParams =
-        LayoutParamsWithSpacing(15, 20)
+        LayoutParamsWithSpacing(HORIZONTAL_SPACING, VERTICAL_SPACING)
 
     override fun checkLayoutParams(layoutParams: LayoutParams) =
         layoutParams is LayoutParamsWithSpacing
 
     class LayoutParamsWithSpacing(val horizontalSpacing: Int, val verticalSpacing: Int) :
         LayoutParams(0, 0)
+
+    companion object{
+        const val HORIZONTAL_SPACING = 15
+        const val VERTICAL_SPACING = 20
+
+    }
 }

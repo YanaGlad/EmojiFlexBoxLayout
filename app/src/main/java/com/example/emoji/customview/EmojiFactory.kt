@@ -2,7 +2,7 @@ package com.example.emoji.customview
 
 class EmojiFactory {
     fun getEmoji() : ArrayList<String> = arrayListOf(
-        "\ud83d\ude00",
+        "\u1f44d\ude00",
         "\uD83D\uDE01",
         "\uD83D\uDE02",
         "\uD83E\uDD70",

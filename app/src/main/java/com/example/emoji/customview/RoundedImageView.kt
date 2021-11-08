@@ -3,7 +3,6 @@ package com.example.emoji.customview
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.ViewOutlineProvider
 import androidx.appcompat.widget.AppCompatImageView
 import com.example.emoji.R
 

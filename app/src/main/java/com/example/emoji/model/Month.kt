@@ -8,16 +8,22 @@ enum class Month {
 }
 
 class PutValueToMonth {
+
+    companion object {
+        private const val MONTH_STEP = 100
+        private const val COUNT = 1000
+    }
+
     private val valuesMap: HashMap<String, Int> = HashMap()
-    private var count = 1000
 
     init {
         var indx = 0
         for (mon in Month.values()) {
             indx++
-            valuesMap[mon.name.lowercase(Locale.getDefault())] = count + indx * 100
+            valuesMap[mon.name.lowercase(Locale.getDefault())] = COUNT + indx * MONTH_STEP
         }
     }
+
     fun getValueByMonth(month: String): Int {
         return valuesMap[month]!!
     }

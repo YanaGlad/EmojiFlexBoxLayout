@@ -141,7 +141,7 @@ class MessageFragment : Fragment() {
         usersStub.indexOfFirst { it.id == messageId }.let { position ->
             val oldElement = usersStub[position]
 
-            val disposable = Single.just(oldElement.listReactions)
+             Single.just(oldElement.listReactions)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap { set ->
@@ -173,7 +173,7 @@ class MessageFragment : Fragment() {
                             .makeSnackBar()
                             .show()
                     }
-                )
+                ).dispose()
         }
     }
 

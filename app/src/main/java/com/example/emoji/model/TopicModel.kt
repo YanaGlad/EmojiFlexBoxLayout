@@ -6,5 +6,5 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 class TopicModel(
     val title : String,
-    val messagesCount : Int
+    val maxMessageId : Int
 ) : Parcelable

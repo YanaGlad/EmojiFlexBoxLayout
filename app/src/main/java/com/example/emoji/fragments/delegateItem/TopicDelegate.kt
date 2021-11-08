@@ -43,7 +43,7 @@ data class TopicDelegate constructor(private val onTopicClick: OnTopicDelegateCl
         @SuppressLint("SetTextI18n")
         fun bind(topicModel: TopicModel) {
             binding.title.text = topicModel.title
-            binding.msgCount.text = "${topicModel.messagesCount} mes"
+            binding.msgCount.text = "${topicModel.maxMessageId} mes"
 
             itemView.setOnClickListener {
                 onTopicClick.onTopicClick(topicModel, adapterPosition)

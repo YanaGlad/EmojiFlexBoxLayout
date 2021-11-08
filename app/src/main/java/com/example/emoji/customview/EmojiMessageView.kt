@@ -9,23 +9,25 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import com.example.emoji.R
-import com.example.emoji.support.*
+import com.example.emoji.support.easyLayout
+import com.example.emoji.support.easyRect
+import com.example.emoji.support.totalHeight
 
 class EmojiMessageView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttrs: Int = 0,
-    defStyleRes: Int = 0
+    defStyleRes: Int = 0,
 ) : ViewGroup(context, attrs, defStyleAttrs, defStyleRes) {
 
-    private val avatar: RoundedImageView
+    val avatar: RoundedImageView
     val messageView: MessageLayout
     private val flexboxLayout: FlexBoxLayout
     private val avatarRect = Rect()
     private val tvMessageRect = Rect()
     private val flexboxRect = Rect()
 
-    var isMy = false
+    private var isMy = false
 
     fun setIsMy(value: Boolean) {
         messageView.isMy = value
@@ -37,11 +39,15 @@ class EmojiMessageView @JvmOverloads constructor(
 
     val plus = EmojiView(context)
 
-    private val leftRightCorrection = 150
-    private val topCorrection = 90
+    companion object {
+        private const val LEFT_RIGHT_CORRECTION = 150
+        private const val TOP_CORRECTION = 90
+        private const val FLEX_MARGIN = 60
+        private const val FLEX_LEFT_BOARDER = 20
+    }
 
-    private var messsageText = ""
-    var nameText = "Yana Glad"
+    private var messageText = ""
+    private var nameText = "Yana Glad"
 
     init {
         val typedArray: TypedArray = context.obtainStyledAttributes(
@@ -88,7 +94,7 @@ class EmojiMessageView @JvmOverloads constructor(
     }
 
     private fun initStyledAttributes(typedArray: TypedArray) {
-        setMessage(typedArray.getString(R.styleable.EmojiMessageView_message) ?: messsageText)
+        setMessage(typedArray.getString(R.styleable.EmojiMessageView_message) ?: messageText)
         setUserName(typedArray.getString(R.styleable.EmojiMessageView_message) ?: nameText)
         setAvatar(typedArray.getInteger(R.styleable.EmojiMessageView_image, R.drawable.ic_launcher_background))
         isMy = typedArray.getBoolean(R.styleable.EmojiMessageView_isMe, false)
@@ -135,8 +141,8 @@ class EmojiMessageView @JvmOverloads constructor(
     }
 
     fun setMessage(text: String) {
-        messsageText = text
-        messageView.setMessage(messsageText)
+        messageText = text
+        messageView.setMessage(messageText)
         requestLayout()
     }
 
@@ -146,7 +152,7 @@ class EmojiMessageView @JvmOverloads constructor(
         requestLayout()
     }
 
-    fun setAvatar(image: Int) {
+    private fun setAvatar(image: Int) {
         avatar.setImageDrawable(getDrawable(context, image))
         requestLayout()
     }
@@ -157,7 +163,7 @@ class EmojiMessageView @JvmOverloads constructor(
         measureChildWithMargins(messageView, widthMeasureSpec, 0, heightMeasureSpec, 0)
         //      if (isMy) flexboxLayout.reversed = true
 
-        val msgHeight = messageView.height()
+        val msgHeight = messageView.totalHeight()
         measureChildWithMargins(
             flexboxLayout,
             widthMeasureSpec,
@@ -166,14 +172,14 @@ class EmojiMessageView @JvmOverloads constructor(
             0
         )
 
-        val flex = if (plus.visibility == View.INVISIBLE) topCorrection else flexboxLayout.height()
+        val flex = if (plus.visibility == View.INVISIBLE) TOP_CORRECTION else flexboxLayout.totalHeight()
 
         val totalWidth = MeasureSpec.getSize(widthMeasureSpec)
 
         setMeasuredDimension(
             resolveSize(totalWidth, widthMeasureSpec),
             resolveSize(
-                msgHeight + flex - 60,
+                msgHeight + flex - FLEX_MARGIN,
                 heightMeasureSpec
             )
         )
@@ -191,20 +197,19 @@ class EmojiMessageView @JvmOverloads constructor(
 //            )
 //
 //        } else {
-        avatar.layout(avatar.rect(avatarRect, 0, 0))
-        messageView.layout(messageView.rect(tvMessageRect, avatar.right, 0))
+        avatar.easyLayout(avatar.easyRect(avatarRect, 0, 0))
+        messageView.easyLayout(messageView.easyRect(tvMessageRect, avatar.right, 0))
 
-        layoutFlexBox(20, messageView.bottom - topCorrection, r - leftRightCorrection)
-        //    }
+        layoutFlexBox(FLEX_LEFT_BOARDER, messageView.bottom - TOP_CORRECTION, r - LEFT_RIGHT_CORRECTION)
     }
 
     private fun layoutFlexBox(leftBorder: Int, rightBorder: Int, topBorder: Int) {
-        flexboxLayout.layout(
-            flexboxLayout.rect(
+        flexboxLayout.easyLayout(
+            flexboxLayout.easyRect(
                 flexboxRect,
                 leftBorder,
                 rightBorder,
-                topBorder - 60,
+                topBorder - FLEX_MARGIN,
             )
         )
     }
@@ -216,6 +221,4 @@ class EmojiMessageView @JvmOverloads constructor(
         MarginLayoutParams(context, attrs)
 
     override fun generateLayoutParams(p: LayoutParams?): LayoutParams = MarginLayoutParams(p)
-
-
 }

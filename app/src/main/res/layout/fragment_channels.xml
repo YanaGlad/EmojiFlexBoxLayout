@@ -9,7 +9,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:background="#1E1E1E"
+        android:background="@color/sub_main_color"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -26,32 +26,39 @@
 
     <androidx.appcompat.widget.SearchView
         android:id="@+id/searchView"
+        style="@style/SearchStyled"
         android:layout_width="0dp"
         android:layout_height="80dp"
-        style="@style/SearchStyled"
-        app:searchIcon="@null"
         android:layout_margin="12dp"
+        android:layout_marginLeft="12dp"
+        android:background="#1E1E1E"
         android:hint="@string/search"
-        app:queryHint="@string/search"
-        app:defaultQueryHint="@string/search"
-        android:queryHint="Search... "
-        android:iconifiedByDefault="false"
+        android:textColor="@color/white"
         android:textColorHint="@color/white"
         android:textSize="25sp"
         app:layout_constraintEnd_toStartOf="@+id/search_img"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:searchIcon="@null" />
+
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs"
+        style="@style/SearchStyled"
         android:layout_width="match_parent"
         android:layout_height="70dp"
-        android:background="#1E1E1E"
+        android:background="@color/sub_main_color"
+        android:iconifiedByDefault="false"
+        android:queryHint="Search... "
         android:textColor="@color/white"
         android:textSize="55sp"
+        app:defaultQueryHint="@string/search"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+
         app:layout_constraintTop_toBottomOf="@+id/searchView"
+        app:queryHint="@string/search"
+        app:searchIcon="@null"
         app:tabTextColor="@color/white" />
 
     <androidx.viewpager2.widget.ViewPager2

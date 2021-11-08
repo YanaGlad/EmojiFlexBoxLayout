@@ -2,7 +2,11 @@ package com.example.emoji.customview
 
 import android.content.Context
 import android.content.res.TypedArray
-import android.graphics.*
+import android.graphics.Paint
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Rect
+import android.graphics.PointF
 import android.util.AttributeSet
 import android.view.View
 import com.example.emoji.R
@@ -23,22 +27,17 @@ class EmojiView @JvmOverloads constructor(
             requestLayout()
         }
 
-    private var customSize = 0f
-    private val defaultSize = 42f
     private var minTextLength = "\uD83E\uDD70"
-
-    private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private var customSize = 0f
+     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.RED
-        textSize = defaultSize
+        textSize = DEFAULT_SIZE
         textAlign = Paint.Align.CENTER
     }
 
     private val textBounds = Rect()
     private val textCoordinate = PointF()
     private val tempFontMetrics = Paint.FontMetrics()
-    private val heightStep = 50
-    private val widthStep = 80
-    private val stepTextFromStart = 30
 
     init {
         val typedArray: TypedArray = context.obtainStyledAttributes(
@@ -55,7 +54,7 @@ class EmojiView @JvmOverloads constructor(
             typedArray.getColor(R.styleable.EmojiView_customTextColor, Color.WHITE)
 
         tapCount = typedArray.getInteger(R.styleable.EmojiView_tap_count, 1)
-        customSize = typedArray.getDimension(R.styleable.EmojiView_textSize, defaultSize)
+        customSize = typedArray.getDimension(R.styleable.EmojiView_textSize, DEFAULT_SIZE)
 
         typedArray.recycle()
     }
@@ -68,8 +67,8 @@ class EmojiView @JvmOverloads constructor(
             textBounds
         )
 
-        val textHeight = textBounds.height() + heightStep
-        val textWidth = textBounds.width() + widthStep
+        val textHeight = textBounds.height() + HEIGHT_STEP
+        val textWidth = textBounds.width() + WIDTH_STEP
 
         val totalWidth = textWidth + paddingRight + paddingLeft
         val totalHeight = textHeight + paddingTop + paddingBottom
@@ -88,7 +87,7 @@ class EmojiView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         canvas.drawText(
             text,
-            textCoordinate.x - 15 * tapCount.toString().length,
+            textCoordinate.x - TEXT_MARGIN * tapCount.toString().length,
             textCoordinate.y,
             textPaint
         )
@@ -96,17 +95,23 @@ class EmojiView @JvmOverloads constructor(
         if (tapCount > 0)
             canvas.drawText(
                 tapCount.toString(),
-                textCoordinate.x + stepTextFromStart,
+                textCoordinate.x + STEP_FORMAT_TEXT,
                 textCoordinate.y,
                 textPaint
             )
-        textPaint.textSize = defaultSize
+        textPaint.textSize = DEFAULT_SIZE
     }
-
-
 
     override fun onClick(p0: View?) {
         isSelected = !isSelected
+    }
+
+    companion object{
+        private const val HEIGHT_STEP = 50
+        private const val WIDTH_STEP = 80
+        private const val STEP_FORMAT_TEXT = 30
+        private const val DEFAULT_SIZE = 42f
+        private const val TEXT_MARGIN = 15
     }
 }
 

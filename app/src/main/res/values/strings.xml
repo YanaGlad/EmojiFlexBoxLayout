@@ -11,6 +11,9 @@
     <string name="out_of_emoji">Кончились эмоджи!</string>
     <string name="search">Search...</string>
     <string name="users_search">Users...</string>
+    <string name="online">online</string>
+    <string name="in_meeting">In a meeting</string>
+    <string name="log_out">Log out</string>
     <string name="error">Ошибка!</string>
     <string name="something_went_wrong_text">Something went wrong</string>
 </resources>

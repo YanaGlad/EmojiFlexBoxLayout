@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.emoji.R
 import com.example.emoji.databinding.MessageItemBinding
 import com.example.emoji.model.MessageModel
+import com.example.emoji.support.loadImage
 
 
 class UserDelegate constructor(private val onUserClick: OnUserDelegateClickListener) : AdapterDelegate {
@@ -26,7 +27,7 @@ class UserDelegate constructor(private val onUserClick: OnUserDelegateClickListe
     override fun onBindViewHolder(
         holder: RecyclerView.ViewHolder,
         item: DelegateItem,
-        position: Int
+        position: Int,
     ) {
         (holder as UserViewHolder).bind(item.content() as MessageModel)
     }
@@ -36,7 +37,7 @@ class UserDelegate constructor(private val onUserClick: OnUserDelegateClickListe
 
     class UserViewHolder(
         val view: View,
-        private val onUserClick: OnUserDelegateClickListener
+        private val onUserClick: OnUserDelegateClickListener,
     ) : RecyclerView.ViewHolder(view) {
 
         private val binding = MessageItemBinding.bind(view)
@@ -44,12 +45,11 @@ class UserDelegate constructor(private val onUserClick: OnUserDelegateClickListe
         @SuppressLint("SetTextI18n")
         fun bind(messageModel: MessageModel) {
 
-            binding.messsageView.apply {
+            binding.message.apply {
                 setIsMy(messageModel.isMe)
                 setUserName(messageModel.name)
                 setMessage(messageModel.message)
-                setAvatar(messageModel.picture)
-
+                loadImage(itemView.context, messageModel.picture, avatar)
                 clearFlexBox()
                 initPlus(context)
                 addCustomEmoji(plus)
@@ -60,7 +60,7 @@ class UserDelegate constructor(private val onUserClick: OnUserDelegateClickListe
                 }
             }
 
-            binding.messsageView.messageView.longPressed = Runnable {
+            binding.message.messageView.longPressed = Runnable {
                 onUserClick.onUserClick(messageModel, adapterPosition)
             }
         }

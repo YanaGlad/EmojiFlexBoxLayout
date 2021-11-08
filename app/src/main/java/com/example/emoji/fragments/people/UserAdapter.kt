@@ -1,20 +1,19 @@
 package com.example.emoji.fragments.people
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.emoji.databinding.UserItemBinding
 import com.example.emoji.model.UserModel
+import com.example.emoji.support.loadImage
 
 class UserAdapter : ListAdapter<UserModel, UserAdapter.ViewHolder>(DiffCallback()) {
 
     class DiffCallback : DiffUtil.ItemCallback<UserModel>() {
         override fun areItemsTheSame(oldItem: UserModel, newItem: UserModel): Boolean {
-            return oldItem.email == newItem.email
+            return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(oldItem: UserModel, newItem: UserModel): Boolean {
@@ -36,23 +35,12 @@ class UserAdapter : ListAdapter<UserModel, UserAdapter.ViewHolder>(DiffCallback(
         )
     }
 
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
+    class ViewHolder(private val binding: UserItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
-    override fun getItemViewType(position: Int): Int {
-        return position
-    }
-
-    class ViewHolder(private val binding: UserItemBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-
-        @SuppressLint("SetTextI18n")
         fun bind(item: UserModel) {
-            binding.avatar.setImageDrawable(AppCompatResources.getDrawable(itemView.context, item.picture))
+            loadImage(itemView.context, item.picture, binding.avatar)
             binding.name.text = item.name
             binding.email.text = item.email
         }
     }
-
 }

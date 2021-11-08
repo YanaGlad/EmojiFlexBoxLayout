@@ -33,4 +33,6 @@
         <attr name="column_count" format="integer" />
     </declare-styleable>
 
+    <attr name="topic_main_color" format="reference" />
+
 </resources>

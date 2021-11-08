@@ -1,5 +1,6 @@
 package com.example.emoji.fragments.delegateItem
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -23,6 +24,7 @@ class DateDelegate : AdapterDelegate {
     override fun isOfViewType(item: DelegateItem): Boolean = item is DateDelegateItem
 
     class ViewHolder(private val binding : DateItemBinding) : RecyclerView.ViewHolder(binding.root){
+        @SuppressLint("SetTextI18n")
         fun bind(dateModel : DateModel) {
             binding.dateValue.text = "${dateModel.dateNumber} ${dateModel.month}"
         }

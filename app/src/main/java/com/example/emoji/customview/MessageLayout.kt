@@ -10,10 +10,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import com.example.emoji.R
-import com.example.emoji.support.height
-import com.example.emoji.support.layout
-import com.example.emoji.support.rect
-import com.example.emoji.support.width
+import com.example.emoji.support.totalHeight
+import com.example.emoji.support.easyLayout
+import com.example.emoji.support.easyRect
+import com.example.emoji.support.totalWidth
 import kotlin.math.max
 
 
@@ -21,28 +21,22 @@ class MessageLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttrs: Int = 0,
-    defStyleRes: Int = 0
+    defStyleRes: Int = 0,
 ) : ViewGroup(context, attrs, defStyleAttrs, defStyleRes), View.OnTouchListener {
 
     val name: TextView
     private var message: TextView
     private val nameRect = Rect()
     private val messageRect = Rect()
-    private val heightCorrection = 50
-    private val widthCorrection = 10
 
     var isMy = false
-    set(value) {
-        background = if(value)
-            getDrawable(context, R.drawable.my_message_gradient)
-        else
-            getDrawable(context, R.drawable.bg_custom_text_view)
-        field = value
-    }
-
-    private val myWidthStep = 45
-    private val otherWidthStep = 10
-
+        set(value) {
+            background = if (value)
+                getDrawable(context, R.drawable.my_message_gradient)
+            else
+                getDrawable(context, R.drawable.bg_custom_text_view)
+            field = value
+        }
 
     init {
         LayoutInflater.from(context).inflate(R.layout.message_view_group, this, true)
@@ -51,7 +45,6 @@ class MessageLayout @JvmOverloads constructor(
         message = findViewById(R.id.msg)
         message.setTextColor(resources.getColor(R.color.white))
     }
-
 
 
     fun setUserName(nameTxt: String) {
@@ -81,18 +74,18 @@ class MessageLayout @JvmOverloads constructor(
         )
 
         val totalWidth =
-            if (isMy) message.width() - myWidthStep else max(name.width(), message.width()) + otherWidthStep
+            if (isMy) message.totalWidth() - MESSAGE_MY_WIDTH_STEP else max(name.totalWidth() +25,
+                message.totalWidth()) + MESSAGE_WIDTH_STEP
 
         val totalHeight =
-            if (isMy) (message.height() + heightCorrection) else (message.height() + name.height() + heightCorrection)
+            if (isMy) (message.totalHeight() + HEIGHT_CORRECTION)
+            else (message.totalHeight() + name.totalHeight() + HEIGHT_CORRECTION)
 
-        val width = if (isMy) message.width() else maxOf(message.width(), name.width() - widthCorrection)
+        val width = if (isMy) message.totalWidth() else maxOf(message.totalWidth(), name.totalWidth())
+
         setMeasuredDimension(
             resolveSize(totalWidth, widthMeasureSpec),
-            resolveSize(
-                totalHeight,
-                width
-            )
+            resolveSize(totalHeight, width)
         )
     }
 
@@ -109,7 +102,7 @@ class MessageLayout @JvmOverloads constructor(
         if (!isMy)
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    handler.postDelayed(longPressed, 1000)
+                    handler.postDelayed(longPressed, DELAY_MILLIS)
                 }
                 MotionEvent.ACTION_UP -> {
                     handler.removeCallbacks(longPressed)
@@ -121,15 +114,24 @@ class MessageLayout @JvmOverloads constructor(
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        if (!isMy) name.layout(name.rect(nameRect, 20, 20))
-        val rect = if (isMy) message.rect(messageRect, 24, 24) else message.rect(messageRect, 20, name.bottom, r)
-        message.layout(
-            rect
-        )
+        if (!isMy) name.easyLayout(name.easyRect(nameRect, NAME_SIDES, NAME_SIDES))
+        val rect = if (isMy) message.easyRect(messageRect, MESSAGE_SIDES, MESSAGE_SIDES)
+        else message.easyRect(messageRect, NAME_SIDES, name.bottom, r)
+
+        message.easyLayout(rect)
     }
 
     override fun generateLayoutParams(attrs: AttributeSet?): LayoutParams =
         MarginLayoutParams(context, attrs)
 
 
+    companion object {
+        const val MESSAGE_SIDES = 24
+        const val NAME_SIDES = 20
+        private const val HEIGHT_CORRECTION = 50
+        private const val WIDTH_CORRECTION = 10
+        private const val DELAY_MILLIS = 1000L
+        private const val MESSAGE_MY_WIDTH_STEP = 45
+        private const val MESSAGE_WIDTH_STEP = 10
+    }
 }

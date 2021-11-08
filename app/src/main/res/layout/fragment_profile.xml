@@ -6,6 +6,59 @@
     android:layout_height="match_parent"
     tools:context=".fragments.profile.ProfileFragment">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolBar"
+        style="@style/MySmallToolBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/not_selected"
+        app:contentInsetEnd="0dp"
+        app:contentInsetStart="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <View
+                android:id="@+id/view3"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:background="@color/sub_main_color"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/title_toolbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="40dp"
+                android:text="Profile"
+                android:textColor="@color/white"
+                android:textSize="25sp"
+                app:layout_constraintBottom_toBottomOf="@+id/backArrowToolbar"
+                app:layout_constraintStart_toEndOf="@+id/backArrowToolbar"
+                app:layout_constraintTop_toTopOf="@+id/backArrowToolbar" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/backArrowToolbar"
+                style="@style/AppSelectableItem"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginStart="22dp"
+                android:background="@null"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_back_arrow"
+                app:layout_constraintBottom_toBottomOf="@+id/view3"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/view3" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
         android:layout_width="185dp"
@@ -18,9 +71,11 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/avatar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/spaceman" />
+            android:src="@drawable/skeleton" />
+
 
     </androidx.cardview.widget.CardView>
 
@@ -29,23 +84,22 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Yana Glad"
         android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="40sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardView" />
+        app:layout_constraintTop_toBottomOf="@+id/cardView"
+        tools:text="Darrell Steward" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/is_in_meeting"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="In meeting"
-        android:textColor="#BCBCBC"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toStartOf="@+id/online"
-        app:layout_constraintHorizontal_bias="0.533"
+        android:text="@string/in_meeting"
+        android:textColor="@color/sub_text_color"
+        android:textSize="25sp"
+        app:layout_constraintEnd_toEndOf="@+id/name"
         app:layout_constraintStart_toStartOf="@+id/name"
         app:layout_constraintTop_toBottomOf="@+id/name" />
 
@@ -53,23 +107,24 @@
         android:id="@+id/online"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"
-        android:text="online"
-        android:textColor="#4CAF50"
-        app:layout_constraintBottom_toBottomOf="@+id/is_in_meeting"
-        app:layout_constraintEnd_toEndOf="@+id/name" />
+        android:text="@string/online"
+        android:textColor="@color/online_color"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/is_in_meeting"
+        app:layout_constraintStart_toStartOf="@+id/is_in_meeting"
+        app:layout_constraintTop_toBottomOf="@+id/is_in_meeting" />
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/extendedFloatingActionButton"
-        android:layout_width="185dp"
-        android:layout_height="50dp"
-        android:backgroundTint="#1B1B1B"
-        android:text="Log out"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
+        android:backgroundTint="@color/darker_background"
+        android:text="@string/log_out"
         android:textAlignment="center"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/cardView"
+        app:layout_constraintStart_toStartOf="@+id/cardView"
         app:layout_constraintTop_toBottomOf="@+id/is_in_meeting" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

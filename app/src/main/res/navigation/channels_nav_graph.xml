@@ -21,7 +21,7 @@
 
     <fragment
         android:id="@+id/messageFragment"
-        android:name="com.example.emoji.fragments.MessageFragment"
+        android:name="com.example.emoji.fragments.message.MessageFragment"
         android:label="fragment_channels"
         tools:layout="@layout/fragment_channels" >
         <argument
@@ -30,6 +30,13 @@
         <argument
             android:name="topic"
             app:argType="com.example.emoji.model.TopicModel" />
+        <action
+            android:id="@+id/action_messageFragment_to_channelsFragment"
+            app:destination="@id/channelsFragment"
+            app:enterAnim="@anim/slide_enter_anim"
+            app:exitAnim="@anim/slide_exit_anim"
+            app:popEnterAnim="@anim/slide_pop_enter_anim"
+            app:popExitAnim="@anim/slide_pop_exit_anim" />
     </fragment>
 
 </navigation>

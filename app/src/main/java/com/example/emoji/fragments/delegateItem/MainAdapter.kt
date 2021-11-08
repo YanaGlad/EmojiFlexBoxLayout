@@ -22,5 +22,4 @@ class MainAdapter : ListAdapter<DelegateItem, RecyclerView.ViewHolder>(DelegateA
     override fun getItemViewType(position: Int): Int {
         return delegates.indexOfFirst { it.isOfViewType(currentList[position]) }
     }
-
 }

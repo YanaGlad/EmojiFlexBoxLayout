@@ -7,7 +7,7 @@ import kotlinx.parcelize.Parcelize
 data class StreamModel(
     val id : Int,
     val title: String,
-    val topics : List<TopicModel>,
+    var topics : List<TopicModel>,
     val subscribed : Boolean,
     var clicked : Boolean
  ) : Parcelable
