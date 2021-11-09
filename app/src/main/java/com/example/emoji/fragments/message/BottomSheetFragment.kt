@@ -1,4 +1,4 @@
-package com.example.emoji.fragments
+package com.example.emoji.fragments.message
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -18,28 +18,38 @@ class BottomSheetFragment(
     var onEmogiClick: (reaction: Reaction, position: Int) -> Unit
 ) : BottomSheetDialogFragment() {
 
+    companion object{
+        private const val COLLAPSE = 230
+    }
+
     private lateinit var adapter : EmojiAdapter
 
     private var _binding: FragmentBottomSheetBinding? = null
     private val binding get() = _binding!!
 
-    private val collapse = 230
-
     override fun getTheme() = R.style.AppBottomSheetDialogTheme
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentBottomSheetBinding.inflate(layoutInflater)
+        return binding.root
+    }
 
-         adapter = EmojiAdapter(object : EmojiAdapter.OnEmojiClickListener {
+
+    private fun initRecycler() {
+        adapter = EmojiAdapter(object : EmojiAdapter.OnEmojiClickListener {
             override fun onEmojiClick(reaction: Reaction, position: Int) {
                 onEmogiClick(reaction, position)
-             //   reactList.removeAt(position)
+                //   reactList.removeAt(position)
                 dismiss()
             }
         })
         adapter.submitList(reactList)
         binding.grid.adapter = adapter
-        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initRecycler()
     }
 
     override fun onStart() {
@@ -50,7 +60,7 @@ class BottomSheetFragment(
             val bottomSheet = it.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
             val behavior = BottomSheetBehavior.from(bottomSheet)
             behavior.apply {
-                peekHeight = (collapse * density).toInt()
+                peekHeight = (COLLAPSE * density).toInt()
                 state = BottomSheetBehavior.STATE_COLLAPSED
             }
         }
@@ -59,5 +69,10 @@ class BottomSheetFragment(
     override fun onResume() {
         super.onResume()
         adapter.submitList(reactList)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 }

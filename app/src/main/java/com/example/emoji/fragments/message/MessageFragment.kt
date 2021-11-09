@@ -1,15 +1,17 @@
-package com.example.emoji.fragments
+package com.example.emoji.fragments.message
 
 import android.content.Context
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.emoji.R
-import com.example.emoji.ToolbarHolder
-import com.example.emoji.customview.EmojiFactory
 import com.example.emoji.databinding.FragmentMessageBinding
 import com.example.emoji.fragments.delegateItem.DateDelegate
 import com.example.emoji.fragments.delegateItem.MainAdapter
@@ -21,12 +23,20 @@ import com.example.emoji.model.TopicModel
 import com.example.emoji.stub.MessageFactory
 import com.example.emoji.support.MyCoolSnackbar
 import com.example.emoji.support.toDelegateItemListWithDate
+import com.example.emoji.viewState.MessageViewState
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import kotlinx.serialization.ExperimentalSerializationApi
+
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 
+@ExperimentalSerializationApi
 class MessageFragment : Fragment() {
+    private val viewModel: MessageViewModel by viewModels()
     private val args: MessageFragmentArgs by navArgs()
 
     private val usersStub = MessageFactory().getMessages()
@@ -36,14 +46,29 @@ class MessageFragment : Fragment() {
     private var _binding: FragmentMessageBinding? = null
     private val binding get() = _binding!!
 
-    private var stream: StreamModel? = null
-    private var topic: TopicModel? = null
+    private val stream: StreamModel by lazy { args.stream }
+    private val topic: TopicModel by lazy { args.topic }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        stream = args.stream
-        topic = args.topic
+        viewModel.loadMessages(topic.title)
+    }
 
+    private fun handleViewState(viewState: MessageViewState) =
+        when (viewState) {
+            is MessageViewState.Loaded -> onLoaded(viewState)
+
+            MessageViewState.Loading -> onLoading()
+            MessageViewState.Error.NetworkError -> {
+            }
+            MessageViewState.SuccessOperation -> {
+            }
+            MessageViewState.Error.UnexpectedError -> {
+            }
+        }
+
+    private fun onLoading() {
+        binding.progressBar.visibility = View.VISIBLE
     }
 
     override fun onCreateView(
@@ -52,34 +77,37 @@ class MessageFragment : Fragment() {
     ): View {
         _binding = FragmentMessageBinding.inflate(layoutInflater)
 
-        initAdapter()
-        setupSendPanel()
-        setupSendingMessage()
-        configureToolbar()
+        viewModel.viewState.observe(viewLifecycleOwner) {
+            handleViewState(it)
+        }
 
         return binding.root
     }
 
-    private fun configureToolbar() {
-        activity?.let { activity ->
-            val holder = activity as ToolbarHolder
-            stream?.let { holder.setToolbarTitle(it.title) }
-            binding.textToolbar.text = topic?.title ?: ""
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupToolbar()
+        initAdapter()
+        setupSendPanel()
+        setupSendingMessage()
+    }
 
-            holder.setToolbarNavigationButtonIcon(R.drawable.ic_back_arrow)
-            holder.showToolbar()
+    private fun setupToolbar() {
+        with(binding) {
+            titleToolbar.text = stream.title
+            textToolbar.text = topic.title
+
+            backArrowToolbar.setOnClickListener {
+                findNavController().navigate(MessageFragmentDirections.actionMessageFragmentToChannelsFragment())
+            }
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.toolbar, menu)
-        super.onCreateOptionsMenu(menu, inflater)
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+        viewModel.dispose()
     }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return true
-    }
-
 
     private fun setupSendPanel() {
         binding.sendPanel.apply {
@@ -101,23 +129,61 @@ class MessageFragment : Fragment() {
     private fun setupSendingMessage() {
         binding.sendPanel.sendButton.setOnClickListener {
             hideKeyboard()
-            usersStub.add(
-                MessageModel(
-                    232,
-                    "Me",
-                    binding.sendPanel.enterMessageEt.text.toString(),
-                    R.drawable.doge,
-                    "25",
-                    "feb",
-                    true,
-                    mutableSetOf()
-                )
-            )
-            binding.sendPanel.enterMessageEt.setText("")
 
-            mainAdapter.submitList(usersStub.toDelegateItemListWithDate())
+            viewModel.addMessage(binding.sendPanel.enterMessageEt.text.toString())
+            viewModel.loadMessages(topic.title)
+            binding.sendPanel.enterMessageEt.setText("")
         }
     }
+
+    private fun convertDateFromUnix(date: Long): String {
+        val sdf = SimpleDateFormat("MMMM d. yyyy. hh:mm", Locale.US)
+        val dat = Date(date * 1000L)
+
+        val finalString = sdf.format(dat)
+
+        val calendar = GregorianCalendar()
+        calendar.time = dat
+
+        return finalString
+    }
+
+    private fun convertDateFromUnixDay(date: Long): String {
+        val sdf = SimpleDateFormat("d", Locale.US)
+        val dat = Date(date * 1000L)
+
+        val finalString = sdf.format(dat)
+
+        val calendar = GregorianCalendar()
+        calendar.time = dat
+
+        return finalString
+    }
+
+    private fun onLoaded(viewState: MessageViewState.Loaded) {
+        val mappedList = viewState.list.map { it ->
+            MessageModel(
+                id = it.id,
+                name = it.authorName,
+                picture = it.avatar_url,
+                message = it.content,
+                date = convertDateFromUnixDay(it.time),
+                month = convertDateFromUnix(it.time).substring(0, 3),
+                isMe = it.is_me_message,
+                listReactions = it.reactions.map { Reaction(it.userId, it.code) }
+            )
+        }
+
+        mainAdapter.submitList(mappedList.toDelegateItemListWithDate())
+        binding.progressBar.visibility = View.GONE
+        binding.recycleMessage.visibility = View.VISIBLE
+
+
+        for (i in mappedList.indices)
+            for (j in mappedList[i].listReactions.indices)
+                suggestReactions.add(Reaction(mappedList[i].listReactions[j].userId, mappedList[i].listReactions[j].emoji))
+    }
+
 
     private fun hideKeyboard() {
         val inputManager = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -141,11 +207,15 @@ class MessageFragment : Fragment() {
         usersStub.indexOfFirst { it.id == messageId }.let { position ->
             val oldElement = usersStub[position]
 
-             Single.just(oldElement.listReactions)
+            //TODO перенести в view model
+            val disposable = Single.just(oldElement.listReactions)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap { set ->
-                    Single.just(set.toMutableSet())
+                    val rnd = Random().nextInt(10)
+                    if (rnd < 5)
+                        throw RuntimeException("test")
+                    Single.just(set.toMutableList())
                 }
                 .subscribe(
                     {
@@ -173,7 +243,7 @@ class MessageFragment : Fragment() {
                             .makeSnackBar()
                             .show()
                     }
-                ).dispose()
+                )
         }
     }
 
@@ -188,13 +258,6 @@ class MessageFragment : Fragment() {
         }
 
         binding.recycleMessage.adapter = mainAdapter
-        mainAdapter.submitList(usersStub.toDelegateItemListWithDate())
     }
 
-    init {
-        val reactions = EmojiFactory().getEmoji()
-        for (reaction in reactions) {
-            suggestReactions.add(Reaction(1, reaction))
-        }
-    }
 }

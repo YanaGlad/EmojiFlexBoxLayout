@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.example.emoji.databinding.FragmentSubscribedBinding
 import com.example.emoji.fragments.channels.OnTopicSelected
 import com.example.emoji.fragments.delegateItem.MainAdapter
@@ -12,36 +13,22 @@ import com.example.emoji.fragments.delegateItem.StreamDelegate
 import com.example.emoji.fragments.delegateItem.TopicDelegate
 import com.example.emoji.model.StreamModel
 import com.example.emoji.model.TopicModel
-import com.example.emoji.stub.MessageFactory
 import com.example.emoji.support.toDelegateStreamsItemList
+import com.example.emoji.viewState.StreamViewState
+import kotlinx.serialization.ExperimentalSerializationApi
 import java.util.*
-import kotlin.collections.ArrayList
 
+@ExperimentalSerializationApi
 class StreamFragment : Fragment() {
-    private var subscribed = false
-
     var onSearchHolder = object : OnSearchHolder {
         override fun onSearch(text: String) {
-            streamsStubs = MessageFactory().getStreamsStub()
-                streamsStubs = streamsStubs.filter {
-                    it.title.lowercase(Locale.getDefault()).startsWith("#$text")
-                } as ArrayList<StreamModel>
+            streamsStubs = streamsStubs.filter {
+                it.title.lowercase(Locale.getDefault()).startsWith("#$text")
+            } as ArrayList<StreamModel>
 
             val delegateList = streamsStubs.toDelegateStreamsItemList(-1)
             mainAdapter.submitList(delegateList)
         }
-    }
-
-    interface OnSearchHolder {
-        fun onSearch(text: String)
-    }
-
-    companion object {
-        fun getInstance(onTopicSelected: OnTopicSelected, subscribed: Boolean) =
-            StreamFragment().apply {
-                this.onTopicSelected = onTopicSelected
-                this.subscribed = subscribed
-            }
     }
 
     private var onTopicSelected: OnTopicSelected? = null
@@ -51,16 +38,61 @@ class StreamFragment : Fragment() {
     private var _binding: FragmentSubscribedBinding? = null
     private val binding get() = _binding!!
 
-    var streamsStubs: ArrayList<StreamModel> = MessageFactory().getStreamsStub()
+    private val viewModel: StreamsViewModel by viewModels()
+
+    private var subscribed = false
+    var streamsStubs: List<StreamModel> = listOf()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.loadStreams()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentSubscribedBinding.inflate(layoutInflater)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.viewState.observe(viewLifecycleOwner, {
+            handleViewState(it)
+        })
         filterSubscribed()
         initAdapter()
-        return binding.root
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+        viewModel.dispose()
+    }
+
+    private fun handleViewState(viewState: StreamViewState) =
+        when (viewState) {
+            is StreamViewState.Loaded -> onLoaded(viewState)
+
+            StreamViewState.Loading -> onLoading()
+            StreamViewState.Error.NetworkError -> {
+            }
+            StreamViewState.SuccessOperation -> {
+                binding.progressBar.visibility = View.GONE
+            }
+            StreamViewState.Error.UnexpectedError -> {
+            }
+        }
+
+    private fun onLoading() {
+        binding.progressBar.visibility = View.VISIBLE
+    }
+
+    private fun onLoaded(viewState: StreamViewState.Loaded) {
+        binding.progressBar.visibility = View.GONE
+        streamsStubs = viewState.list
+        initAdapter()
     }
 
     private fun filterSubscribed() {
@@ -81,7 +113,6 @@ class StreamFragment : Fragment() {
             addDelegate(StreamDelegate(object : StreamDelegate.OnStreamDelegateClickListener {
                 override fun onStreamClick(item: StreamModel, position: Int): Boolean { // TODO click!!!
                     if (currentViewedModel != null && currentViewedModel!!.title == item.title) {
-                        streamsStubs = MessageFactory().getStreamsStub()
                         streamsStubs.forEach {
                             it.clicked = false
                         }
@@ -94,7 +125,6 @@ class StreamFragment : Fragment() {
                         val pos =
                             if (savedPos < position) position - (currentViewedModel?.topics?.size ?: 0) else position
 
-                        streamsStubs = MessageFactory().getStreamsStub()
                         if (subscribed) {
                             streamsStubs = streamsStubs.filter {
                                 it.subscribed
@@ -106,7 +136,6 @@ class StreamFragment : Fragment() {
 
                         savedPos = position
                         currentViewedModel = item
-
                         return true
                     }
                 }
@@ -123,6 +152,18 @@ class StreamFragment : Fragment() {
 
         binding.recycleStreams.adapter = mainAdapter
         mainAdapter.submitList(streamsStubs.toDelegateStreamsItemList(-1))
+    }
+
+    companion object {
+        fun getInstance(onTopicSelected: OnTopicSelected, subscribed: Boolean) =
+            StreamFragment().apply {
+                this.onTopicSelected = onTopicSelected
+                this.subscribed = subscribed
+            }
+    }
+
+    interface OnSearchHolder {
+        fun onSearch(text: String)
     }
 }
 
