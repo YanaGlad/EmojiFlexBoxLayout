@@ -100,16 +100,17 @@ class EmojiMessageView @JvmOverloads constructor(
         isMy = typedArray.getBoolean(R.styleable.EmojiMessageView_isMe, false)
     }
 
-    fun addNewEmoji(setupText: String) {
+    fun addNewEmoji(count : Int, setupText: String, clicked : Boolean ) {
         val view = EmojiView(context)
         view.apply {
             text = setupText
             if (setupText.isNotEmpty()) {
                 background = getDrawable(context, R.drawable.bg_custom_text_view)
-                tapCount = 1
+                tapCount = count
                 setOnClickListener {
                     it.isSelected = !it.isSelected
                 }
+                isSelected = clicked
                 addCustomEmoji(this)
             }
         }
@@ -120,6 +121,7 @@ class EmojiMessageView @JvmOverloads constructor(
     fun clearFlexBox() {
         flexboxLayout.removeAllViews()
     }
+
 
     fun addCustomEmoji(view: EmojiView) {
         flexboxLayout.also {
@@ -174,7 +176,7 @@ class EmojiMessageView @JvmOverloads constructor(
 
         val flex = if (plus.visibility == View.INVISIBLE) TOP_CORRECTION else flexboxLayout.totalHeight()
 
-        val totalWidth = MeasureSpec.getSize(widthMeasureSpec)
+        val totalWidth = MeasureSpec.getSize(widthMeasureSpec) - 20
 
         setMeasuredDimension(
             resolveSize(totalWidth, widthMeasureSpec),

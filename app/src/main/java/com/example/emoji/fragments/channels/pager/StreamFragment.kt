@@ -1,6 +1,7 @@
 package com.example.emoji.fragments.channels.pager
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,11 +23,12 @@ import java.util.*
 class StreamFragment : Fragment() {
     var onSearchHolder = object : OnSearchHolder {
         override fun onSearch(text: String) {
-            streamsStubs = streamsStubs.filter {
-                it.title.lowercase(Locale.getDefault()).startsWith("#$text")
+            streamsReal = streamsEvent.filter {
+                Log.d(TAG, " Got text : $text")
+                it.title.lowercase(Locale.getDefault()).startsWith(text)
             } as ArrayList<StreamModel>
 
-            val delegateList = streamsStubs.toDelegateStreamsItemList(-1)
+            val delegateList = streamsReal.toDelegateStreamsItemList(-1)
             mainAdapter.submitList(delegateList)
         }
     }
@@ -41,7 +43,8 @@ class StreamFragment : Fragment() {
     private val viewModel: StreamsViewModel by viewModels()
 
     private var subscribed = false
-    var streamsStubs: List<StreamModel> = listOf()
+    var streamsReal: List<StreamModel> = listOf()
+    var streamsEvent: List<StreamModel> = listOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,13 +94,14 @@ class StreamFragment : Fragment() {
 
     private fun onLoaded(viewState: StreamViewState.Loaded) {
         binding.progressBar.visibility = View.GONE
-        streamsStubs = viewState.list
+        streamsReal = viewState.list
+        streamsEvent = viewState.list
         initAdapter()
     }
 
     private fun filterSubscribed() {
         if (subscribed) {
-            streamsStubs = streamsStubs.filter {
+            streamsReal = streamsReal.filter {
                 it.subscribed
             } as ArrayList<StreamModel>
         }
@@ -113,11 +117,11 @@ class StreamFragment : Fragment() {
             addDelegate(StreamDelegate(object : StreamDelegate.OnStreamDelegateClickListener {
                 override fun onStreamClick(item: StreamModel, position: Int): Boolean { // TODO click!!!
                     if (currentViewedModel != null && currentViewedModel!!.title == item.title) {
-                        streamsStubs.forEach {
+                        streamsReal.forEach {
                             it.clicked = false
                         }
                         filterSubscribed()
-                        mainAdapter.submitList(streamsStubs.toDelegateStreamsItemList(-1))
+                        mainAdapter.submitList(streamsReal.toDelegateStreamsItemList(-1))
                         currentViewedModel = null
                         savedPos = -1
                         return false
@@ -126,12 +130,12 @@ class StreamFragment : Fragment() {
                             if (savedPos < position) position - (currentViewedModel?.topics?.size ?: 0) else position
 
                         if (subscribed) {
-                            streamsStubs = streamsStubs.filter {
+                            streamsReal = streamsReal.filter {
                                 it.subscribed
                             } as ArrayList<StreamModel>
                         }
 
-                        val delegateList = streamsStubs.toDelegateStreamsItemList(pos)
+                        val delegateList = streamsReal.toDelegateStreamsItemList(pos)
                         mainAdapter.submitList(delegateList)
 
                         savedPos = position
@@ -151,10 +155,11 @@ class StreamFragment : Fragment() {
         }
 
         binding.recycleStreams.adapter = mainAdapter
-        mainAdapter.submitList(streamsStubs.toDelegateStreamsItemList(-1))
+        mainAdapter.submitList(streamsReal.toDelegateStreamsItemList(-1))
     }
 
     companion object {
+        private const val TAG = "STREAMS_TAG"
         fun getInstance(onTopicSelected: OnTopicSelected, subscribed: Boolean) =
             StreamFragment().apply {
                 this.onTopicSelected = onTopicSelected

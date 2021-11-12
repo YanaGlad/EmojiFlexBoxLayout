@@ -4,6 +4,7 @@ import com.example.emoji.api.Api
 import com.example.emoji.api.model.Message
 import com.example.emoji.api.model.MessageResponse
 import com.example.emoji.api.model.MessagesNarrowRequest
+import com.example.emoji.api.model.Reaction
 import io.reactivex.Single
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
@@ -65,5 +66,9 @@ class MessageRepository(private val apiService: Api)  {
     fun addMessage(streamName: String, topicName: String, text: String): Single<MessageResponse> {
         val query = addMessageQuery(streamName, topicName, text)
         return apiService.sendMessage(query)
+    }
+
+    fun addReaction(messageId : Int, name : String) : Single<Reaction> {
+      return apiService.addMessageReaction(messageId, name)
     }
 }

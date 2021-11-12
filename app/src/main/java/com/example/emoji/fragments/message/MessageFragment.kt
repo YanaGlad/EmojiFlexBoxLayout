@@ -1,5 +1,6 @@
 package com.example.emoji.fragments.message
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -16,17 +17,9 @@ import com.example.emoji.databinding.FragmentMessageBinding
 import com.example.emoji.fragments.delegateItem.DateDelegate
 import com.example.emoji.fragments.delegateItem.MainAdapter
 import com.example.emoji.fragments.delegateItem.UserDelegate
-import com.example.emoji.model.MessageModel
-import com.example.emoji.model.Reaction
-import com.example.emoji.model.StreamModel
-import com.example.emoji.model.TopicModel
-import com.example.emoji.stub.MessageFactory
-import com.example.emoji.support.MyCoolSnackbar
+import com.example.emoji.model.*
 import com.example.emoji.support.toDelegateItemListWithDate
 import com.example.emoji.viewState.MessageViewState
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.ExperimentalSerializationApi
 
 import java.text.SimpleDateFormat
@@ -39,7 +32,7 @@ class MessageFragment : Fragment() {
     private val viewModel: MessageViewModel by viewModels()
     private val args: MessageFragmentArgs by navArgs()
 
-    private val usersStub = MessageFactory().getMessages()
+    private var usersStub : ArrayList<MessageModel> = arrayListOf()
 
     private lateinit var mainAdapter: MainAdapter
 
@@ -52,20 +45,8 @@ class MessageFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.loadMessages(topic.title)
+        viewModel.getMyUser()
     }
-
-    private fun handleViewState(viewState: MessageViewState) =
-        when (viewState) {
-            is MessageViewState.Loaded -> onLoaded(viewState)
-
-            MessageViewState.Loading -> onLoading()
-            MessageViewState.Error.NetworkError -> {
-            }
-            MessageViewState.SuccessOperation -> {
-            }
-            MessageViewState.Error.UnexpectedError -> {
-            }
-        }
 
     private fun onLoading() {
         binding.progressBar.visibility = View.VISIBLE
@@ -80,8 +61,13 @@ class MessageFragment : Fragment() {
         viewModel.viewState.observe(viewLifecycleOwner) {
             handleViewState(it)
         }
-
         return binding.root
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+        viewModel.dispose()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -92,21 +78,38 @@ class MessageFragment : Fragment() {
         setupSendingMessage()
     }
 
+    private fun handleViewState(viewState: MessageViewState) =
+        when (viewState) {
+            is MessageViewState.Loaded -> onLoaded(viewState)
+
+            MessageViewState.Loading -> onLoading()
+            MessageViewState.Error.NetworkError -> {
+            }
+            MessageViewState.SuccessOperation -> onSuccess()
+            MessageViewState.Error.UnexpectedError -> {
+            }
+        }
+
+    private fun onSuccess() {
+        usersStub.forEach {
+            it.countedReactions = countEmoji(it)
+        }
+
+        mainAdapter.submitList(usersStub.toDelegateItemListWithDate())
+        binding.progressBar.visibility = View.GONE
+        binding.recycleMessage.visibility = View.VISIBLE
+    }
+
+    @SuppressLint("SetTextI18n")
     private fun setupToolbar() {
         with(binding) {
-            titleToolbar.text = stream.title
-            textToolbar.text = topic.title
+            titleToolbar.text = "#${stream.title}"
+            textToolbar.text = "#${topic.title}"
 
             backArrowToolbar.setOnClickListener {
                 findNavController().navigate(MessageFragmentDirections.actionMessageFragmentToChannelsFragment())
             }
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
-        viewModel.dispose()
     }
 
     private fun setupSendPanel() {
@@ -125,6 +128,7 @@ class MessageFragment : Fragment() {
             }
         }
     }
+
 
     private fun setupSendingMessage() {
         binding.sendPanel.sendButton.setOnClickListener {
@@ -164,24 +168,31 @@ class MessageFragment : Fragment() {
         val mappedList = viewState.list.map { it ->
             MessageModel(
                 id = it.id,
+                userId = it.authorId,
                 name = it.authorName,
                 picture = it.avatar_url,
                 message = it.content,
                 date = convertDateFromUnixDay(it.time),
                 month = convertDateFromUnix(it.time).substring(0, 3),
-                isMe = it.is_me_message,
-                listReactions = it.reactions.map { Reaction(it.userId, it.code) }
+                isMe = viewModel.myUserName.value == it.authorName,
+                listReactions = it.reactions.map { Reaction(it.userId, it.code, it.name) }
             )
+        }
+
+        mappedList.forEach {
+            it.countedReactions = countEmoji(it)
+            it.listReactions.forEach { reaction->
+                if(it.userId == viewModel.myUserId.value){
+                    reaction.clicked = true
+                }
+            }
         }
 
         mainAdapter.submitList(mappedList.toDelegateItemListWithDate())
         binding.progressBar.visibility = View.GONE
         binding.recycleMessage.visibility = View.VISIBLE
 
-
-        for (i in mappedList.indices)
-            for (j in mappedList[i].listReactions.indices)
-                suggestReactions.add(Reaction(mappedList[i].listReactions[j].userId, mappedList[i].listReactions[j].emoji))
+        usersStub = mappedList as ArrayList<MessageModel>
     }
 
 
@@ -194,56 +205,29 @@ class MessageFragment : Fragment() {
         )
     }
 
-    private val suggestReactions: ArrayList<Reaction> = arrayListOf()
 
     private fun showBottomSheetFragment(messageId: Int) {
-        BottomSheetFragment(suggestReactions) { reaction, _ ->
+        BottomSheetFragment(reactionsMap) { reaction, _ ->
             updateElementWithReaction(messageId, reaction)
             mainAdapter.submitList(usersStub.toDelegateItemListWithDate())
         }.show(childFragmentManager, "bottom_tag")
     }
 
+    private fun countEmoji(message: MessageModel): Map<String, Int> {
+        val emojiCount = mutableMapOf<String, Int>()
+        message.listReactions.forEach {
+            val oldValue = emojiCount[it.emoji]
+            if (oldValue == null) {
+                emojiCount[it.emoji] = 1
+            } else emojiCount[it.emoji] = oldValue + 1
+        }
+        return emojiCount
+    }
+
     private fun updateElementWithReaction(messageId: Int, reaction: Reaction) {
         usersStub.indexOfFirst { it.id == messageId }.let { position ->
-            val oldElement = usersStub[position]
-
-            //TODO перенести в view model
-            val disposable = Single.just(oldElement.listReactions)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .flatMap { set ->
-                    val rnd = Random().nextInt(10)
-                    if (rnd < 5)
-                        throw RuntimeException("test")
-                    Single.just(set.toMutableList())
-                }
-                .subscribe(
-                    {
-                        it.add(reaction)
-                        usersStub.removeAt(position)
-                        val newElement = MessageModel(
-                            oldElement.id,
-                            oldElement.name,
-                            oldElement.message,
-                            oldElement.picture,
-                            oldElement.date,
-                            oldElement.month,
-                            oldElement.isMe,
-                            it
-                        )
-                        usersStub.add(position, newElement)
-                        mainAdapter.submitList(usersStub.toDelegateItemListWithDate())
-                    },
-                    {
-                        MyCoolSnackbar(
-                            layoutInflater,
-                            binding.root,
-                            "Ошибка!"
-                        )
-                            .makeSnackBar()
-                            .show()
-                    }
-                )
+            viewModel.addReaction(messageId, reaction.emojiName)
+            viewModel.loadMessages(topic.title) //Todo
         }
     }
 
@@ -261,3 +245,11 @@ class MessageFragment : Fragment() {
     }
 
 }
+//                        MyCoolSnackbar(
+//                            layoutInflater,
+//                            binding.root,
+//                            "Ошибка!"
+//                        )
+//                            .makeSnackBar()
+//                            .show()
+//                    }

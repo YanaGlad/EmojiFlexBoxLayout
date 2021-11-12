@@ -1,6 +1,5 @@
 package com.example.emoji.viewState
 
-import com.example.emoji.api.model.User
 import com.example.emoji.model.TopicModel
 
 sealed class TopicViewState {

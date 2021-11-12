@@ -39,9 +39,9 @@ class StreamDelegate(private val onStreamClick: OnStreamDelegateClickListener) :
 
         private val binding = StreamItemBinding.bind(view)
 
-        @SuppressLint("SetTextI18n")
+        @SuppressLint("SetTextI18n", "UseCompatLoadingForDrawables")
         fun bind(streamModel: StreamModel) {
-            binding.title.text = streamModel.title
+            binding.title.text = "#${streamModel.title}"
 
             if (streamModel.clicked)
                 binding.viewTopics.setImageDrawable(itemView.context.getDrawable(R.drawable.ic_view_opened))

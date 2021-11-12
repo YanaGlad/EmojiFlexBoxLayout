@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class StreamsResponse(
 
-    @SerialName("oneStreams")
+    @SerialName("streams")
     val oneStreams: List<OneStreamResponse>
 )
 

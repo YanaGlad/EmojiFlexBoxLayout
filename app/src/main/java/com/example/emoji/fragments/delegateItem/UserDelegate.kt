@@ -1,6 +1,7 @@
 package com.example.emoji.fragments.delegateItem
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -55,8 +56,10 @@ class UserDelegate constructor(private val onUserClick: OnUserDelegateClickListe
                 addCustomEmoji(plus)
                 setupPlusClickListener { onUserClick.onUserClick(messageModel, adapterPosition) }
 
-                for (emoji in messageModel.listReactions) {
-                    addNewEmoji(emoji.emoji)
+                for ((emoji, count) in messageModel.countedReactions) {
+                    Log.d("check", "${messageModel.message}")
+                    if (emoji != "zulip") //???
+                        addNewEmoji(count, String(Character.toChars(Integer.parseInt(emoji, 16))), )
                 }
             }
 

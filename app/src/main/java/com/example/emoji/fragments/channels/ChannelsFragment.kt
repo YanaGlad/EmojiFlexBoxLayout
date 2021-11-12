@@ -1,6 +1,7 @@
 package com.example.emoji.fragments.channels
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,12 +18,14 @@ import io.reactivex.Observable
 import io.reactivex.ObservableOnSubscribe
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.serialization.ExperimentalSerializationApi
-import java.util.*
-import java.util.concurrent.TimeUnit
-
 
 interface OnTopicSelected {
     fun moveToTopicDiscussion(currentViewedModel: StreamModel, topicModel: TopicModel)
+}
+
+sealed class SearchViewEvent {
+    data class OnQueryChanged(val text: String?) : SearchViewEvent()
+    data class OnQueryTextSumbit(val query: String?) : SearchViewEvent()
 }
 
 @ExperimentalSerializationApi
@@ -36,38 +39,67 @@ class ChannelsFragment : Fragment(), OnTopicSelected {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentChannelsBinding.inflate(layoutInflater)
+        return binding.root
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setupPager()
         setupTabs()
+        setupSearch()
+    }
 
-        compositeDisposable.add(Observable.create(ObservableOnSubscribe<String> { subscriber ->
+    private fun setupSearch() {
+        compositeDisposable.add(Observable.create(ObservableOnSubscribe<SearchViewEvent> { subscriber ->
             binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextChange(newText: String?): Boolean {
-                    subscriber.onNext(newText!!)
-                    return false
+                    subscriber.onNext(SearchViewEvent.OnQueryChanged(newText))
+                    return true
                 }
 
                 override fun onQueryTextSubmit(query: String?): Boolean {
-                    subscriber.onNext(query!!)
-                    return false
+                    subscriber.onNext(SearchViewEvent.OnQueryTextSumbit(query))
+                    return true
                 }
             })
         })
-            .map { text -> text.lowercase(Locale.getDefault()).trim()}
-            .debounce(250, TimeUnit.MILLISECONDS)
-            .distinct()
-            .subscribe { text ->
-                val pagerPos = binding.streamsPager.currentItem
-                val currentFragment =
-                    activity?.supportFragmentManager?.findFragmentByTag("f${pagerAdapter.getItemId(pagerPos)}")
-                (currentFragment as StreamFragment).onSearchHolder.onSearch(text)
-            }
-        )
+            .switchMap { event ->
+                when (event) {
+                    is SearchViewEvent.OnQueryChanged -> Observable.just(event.text)
+                    is SearchViewEvent.OnQueryTextSumbit -> Observable.just(event.query)
+                }
+            }.subscribe(
+                {
+                    val pagerPos = binding.streamsPager.currentItem
+                    val currentFragment =
+                        activity?.supportFragmentManager?.findFragmentByTag("f${pagerAdapter.getItemId(pagerPos)}")
+                    it?.let { (currentFragment as StreamFragment).onSearchHolder.onSearch(it) }
 
-        return binding.root
+                },
+                {
+                    Log.e(TAG, "Error while searching ${it.message}")
+                }
+            )
+        )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+        compositeDisposable.dispose()
+    }
+
+    override fun moveToTopicDiscussion(currentViewedModel: StreamModel, topicModel: TopicModel) {
+        findNavController().navigate(
+            ChannelsFragmentDirections.actionChannelsFragmentToMessageFragment(
+                currentViewedModel,
+                topicModel
+            )
+        )
+        setupPager()
     }
 
     private fun setupTabs() {
@@ -89,19 +121,7 @@ class ChannelsFragment : Fragment(), OnTopicSelected {
         )
     }
 
-    override fun moveToTopicDiscussion(currentViewedModel: StreamModel, topicModel: TopicModel) {
-        findNavController().navigate(
-            ChannelsFragmentDirections.actionChannelsFragmentToMessageFragment(
-                currentViewedModel,
-                topicModel
-            )
-        )
-        setupPager()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
-        compositeDisposable.dispose()
+    companion object{
+        private const val TAG = "CHANNELS_TAG"
     }
 }

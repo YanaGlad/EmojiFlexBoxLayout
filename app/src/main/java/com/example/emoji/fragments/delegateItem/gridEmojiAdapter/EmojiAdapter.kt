@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.emoji.databinding.EmojiItemBinding
 import com.example.emoji.model.Reaction
 
-class EmojiAdapter internal constructor(private val clickListener : OnEmojiClickListener) :
+class EmojiAdapter internal constructor(private val clickListener: OnEmojiClickListener) :
     ListAdapter<Reaction, EmojiAdapter.EmojiViewHolder>(OperationDiffUtil()) {
 
     interface OnEmojiClickListener {
@@ -37,26 +37,23 @@ class EmojiAdapter internal constructor(private val clickListener : OnEmojiClick
     class OperationDiffUtil : DiffUtil.ItemCallback<Reaction>() {
         override fun areItemsTheSame(
             oldItem: Reaction,
-            newItem: Reaction
+            newItem: Reaction,
         ): Boolean =
             oldItem.emoji == newItem.emoji
 
         override fun areContentsTheSame(
             oldItem: Reaction,
-            newItem: Reaction
+            newItem: Reaction,
         ): Boolean =
             oldItem == newItem
     }
 
     class EmojiViewHolder(
-        val binding: EmojiItemBinding
+        val binding: EmojiItemBinding,
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        private lateinit var item : Reaction
-
         fun bind(reaction: Reaction) {
-            item = reaction
-            binding.emoji.text = reaction.emoji
+            binding.emoji.text = String(Character.toChars(Integer.parseInt(reaction.emoji, 16)))
         }
     }
 }

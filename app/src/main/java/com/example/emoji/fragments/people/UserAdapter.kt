@@ -11,6 +11,10 @@ import com.example.emoji.support.loadImage
 
 class UserAdapter : ListAdapter<UserModel, UserAdapter.ViewHolder>(DiffCallback()) {
 
+    interface OnUserClickListener{
+        fun onUserClick(userModel: UserModel, position: Int)
+    }
+
     class DiffCallback : DiffUtil.ItemCallback<UserModel>() {
         override fun areItemsTheSame(oldItem: UserModel, newItem: UserModel): Boolean {
             return oldItem.id == newItem.id

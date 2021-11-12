@@ -41,7 +41,7 @@ data class MessageResponse(
 @Serializable
 data class MessagesResponse(
 
-    @SerialName("oneMessages")
+    @SerialName("messages")
     val oneMessages: List<OneMessageResponse>
 )
 

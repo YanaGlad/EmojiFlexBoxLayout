@@ -7,6 +7,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TopicsResponse(
 
-    @SerialName("oneTopics")
+    @SerialName("topics")
     val oneTopics: List<OneTopicResponse>
 )
