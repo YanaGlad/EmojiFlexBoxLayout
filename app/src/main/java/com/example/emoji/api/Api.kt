@@ -6,10 +6,10 @@ import retrofit2.http.*
 
 
 interface Api {
-    @GET("oneMessages")
+    @GET("messages")
     fun getMessages(@QueryMap queryMap: Map<String, String>): Single<MessagesResponse>
 
-    @POST("oneMessages")
+    @POST("messages")
     fun sendMessage(@QueryMap queryMap: Map<String, String>): Single<MessageResponse>
 
     @GET("users/me")
@@ -18,10 +18,18 @@ interface Api {
     @GET("users")
     fun getAllUsers(): Single<AllUsersResponse>
 
-    @GET("oneStreams")
+    @GET("streams")
     fun getAllStreams(): Single<StreamsResponse>
 
-    @GET("users/me/{stream_id}/oneTopics")
+    @GET("users/me/{stream_id}/topics")
     fun getTopicsByStreamId(@Path("stream_id") id: Int): Single<TopicsResponse>
 
+    @POST("messages/{id}/reactions")
+    fun addMessageReaction(@Path("id") id: Int, @Query("emoji_name") reactionName: String): Single<Reaction>
+
+    @DELETE("messages/{id}/reactions")
+    fun removeMessageReaction(@Path("id") id: Int, @Query("emoji_name") reactionName: String): Single<Reaction>
+
+    @GET("users/{id}/presence")
+    fun getUserPresence(@Path("id") id: Int): Single<PresenceResponse>
 }
