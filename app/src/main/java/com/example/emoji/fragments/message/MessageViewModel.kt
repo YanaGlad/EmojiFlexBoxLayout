@@ -6,14 +6,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.emoji.api.Api
 import com.example.emoji.api.Instance
-import com.example.emoji.fragments.profile.ProfileViewModel
+import com.example.emoji.repository.MessageRepository
+import com.example.emoji.repository.UserRepository
 import com.example.emoji.viewState.MessageViewState
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import com.example.emoji.repository.MessageRepository
-import com.example.emoji.repository.UserRepository
-import com.example.emoji.viewState.UserViewState
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.io.IOException
 
@@ -63,6 +61,8 @@ class MessageViewModel : ViewModel() {
 
 
     fun addReaction(messageId: Int, emoji: String) {
+        Log.d(TAG, "MsgId is $messageId emoji is $emoji")
+
         _viewState.value = MessageViewState.Loading
 
         val api = Instance.getInstance().create(Api::class.java)

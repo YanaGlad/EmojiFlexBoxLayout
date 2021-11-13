@@ -9,5 +9,21 @@
         android:id="@+id/peopleFragment"
         android:name="com.example.emoji.fragments.people.PeopleFragment"
         android:label="fragment_people"
-        tools:layout="@layout/fragment_people" />
+        tools:layout="@layout/fragment_people" >
+        <action
+            android:id="@+id/action_peopleFragment_to_otherPeopleProfile"
+            app:destination="@id/otherPeopleProfile"
+            app:enterAnim="@anim/slide_enter_anim"
+            app:exitAnim="@anim/slide_exit_anim"
+            app:popEnterAnim="@anim/slide_pop_enter_anim"
+            app:popExitAnim="@anim/slide_pop_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/otherPeopleProfile"
+        android:name="com.example.emoji.fragments.profile.OtherPeopleProfile"
+        android:label="OtherPeopleProfile" >
+        <argument
+            android:name="model"
+            app:argType="com.example.emoji.model.UserModel" />
+    </fragment>
 </navigation>

@@ -1,6 +1,7 @@
 package com.example.emoji.repository
 
 import com.example.emoji.api.Api
+import com.example.emoji.api.model.Presence
 import com.example.emoji.api.model.User
 import io.reactivex.Single
 
@@ -18,7 +19,7 @@ class UserRepository(private val apiService: Api) {
             }
     }
 
-    fun getAllUsers() : Single<List<User>>{
+    fun getAllUsers(): Single<List<User>> {
         return apiService.getAllUsers()
             .flatMap { it ->
                 val mappedList = it.members.map {
@@ -33,4 +34,10 @@ class UserRepository(private val apiService: Api) {
                 Single.just(mappedList)
             }
     }
+
+    fun getUserPresence(userId: Int): Single<Presence> =
+        apiService.getUserPresence(userId)
+            .map { response ->
+                Presence(userId, response.presence.oneResponse.timestamp, response.presence.oneResponse.status)
+            }
 }

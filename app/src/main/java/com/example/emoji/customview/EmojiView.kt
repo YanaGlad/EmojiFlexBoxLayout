@@ -16,8 +16,10 @@ class EmojiView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
-    defStyleRes: Int = 0
+    defStyleRes: Int = 0,
 ) : View(context, attrs, defStyleAttr, defStyleRes), View.OnClickListener {
+
+    var emojiClick: () -> Unit = { }
 
     var text = ""
 
@@ -29,7 +31,7 @@ class EmojiView @JvmOverloads constructor(
 
     private var minTextLength = "\uD83E\uDD70"
     private var customSize = 0f
-     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.RED
         textSize = DEFAULT_SIZE
         textAlign = Paint.Align.CENTER
@@ -106,35 +108,39 @@ class EmojiView @JvmOverloads constructor(
         isSelected = !isSelected
     }
 
-    companion object{
+    var checked = false
+
+    override fun onCreateDrawableState(extraSpace: Int): IntArray {
+        val drawableState = super.onCreateDrawableState(extraSpace + SUPPORTED_DRAWABLE_STATE.size)
+        if (isSelected) {
+            mergeDrawableStates(drawableState, SUPPORTED_DRAWABLE_STATE)
+            if (tapCount != 0 && !checked) {
+                tapCount++
+                checked = true
+                emojiClick()
+                requestLayout()
+            }
+        } else {
+            if (tapCount != 0 && checked) {
+                tapCount--
+                checked = false
+                requestLayout()
+            }
+        }
+        return drawableState
+    }
+
+    companion object {
         private const val HEIGHT_STEP = 50
         private const val WIDTH_STEP = 80
         private const val STEP_FORMAT_TEXT = 30
         private const val DEFAULT_SIZE = 42f
         private const val TEXT_MARGIN = 15
+        private val SUPPORTED_DRAWABLE_STATE = intArrayOf(android.R.attr.state_selected)
     }
 }
 
 
-
-//    override fun onCreateDrawableState(extraSpace: Int): IntArray {
-//        val drawableState = super.onCreateDrawableState(extraSpace + SUPPORTED_DRAWABLE_STATE.size)
-//        if (isSelected) {
-//            mergeDrawableStates(drawableState, SUPPORTED_DRAWABLE_STATE)
-//            if (tap_count != 0 && !checked) {
-//                tap_count++
-//                checked = true
-//                requestLayout()
-//            }
-//        } else {
-//            if (tap_count != 0 && checked) {
-//                tap_count--
-//                checked = false
-//                requestLayout()
-//            }
-//        }
-//        return drawableState
-//    }
 //companion object {
 //    private val SUPPORTED_DRAWABLE_STATE = intArrayOf(android.R.attr.state_selected)
 //}

@@ -15,26 +15,16 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import java.io.IOException
 
 @ExperimentalSerializationApi
-class ProfileViewModel : ViewModel() {
-    private val compositeDisposable = CompositeDisposable()
-
-    fun dispose(){
-        compositeDisposable.dispose()
+class OtherPeopleProfileViewModel : ViewModel() {
+    private companion object{
+        const val TAG = "TAG_OTHER_PROFILE"
     }
 
-    private val _viewState: MutableLiveData<UserViewState> = MutableLiveData()
-    val viewState: LiveData<UserViewState>
-        get() = _viewState
+    private val compositeDisposable = CompositeDisposable()
 
     private val _viewStatePresence : MutableLiveData<PresenceViewState> = MutableLiveData()
     val viewStatePresence : LiveData<PresenceViewState>
         get() = _viewStatePresence
-
-    private val userId : MutableLiveData<Int> = MutableLiveData()
-
-    private companion object{
-        const val TAG = "TAG_PROFILE"
-    }
 
     private fun Throwable.convertToViewState() =
         when (this) {
@@ -42,34 +32,11 @@ class ProfileViewModel : ViewModel() {
             else -> UserViewState.Error.UnexpectedError
         }
 
-    fun getMyUser(){
-        _viewState.value = UserViewState.Loading
-
+    fun getPresence(userId : Int){
         val api = Instance.getInstance().create(Api::class.java)
         val repo = UserRepository(api)
 
-        compositeDisposable.add(repo.getMyUser()
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
-            .subscribe(
-                {
-                    Log.d(TAG, "It is $it")
-                    userId.postValue(it.id)
-                    _viewState.postValue(UserViewState.Loaded(it))
-                },
-                {
-                    Log.d(TAG, "It is ERROR ${it.message}")
-                    it.convertToViewState()
-                }
-            )
-        )
-    }
-
-    fun getPresence(){
-        val api = Instance.getInstance().create(Api::class.java)
-        val repo = UserRepository(api)
-
-        compositeDisposable.add(repo.getUserPresence(userId.value!!)
+        compositeDisposable.add(repo.getUserPresence(userId)
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
             .subscribe(

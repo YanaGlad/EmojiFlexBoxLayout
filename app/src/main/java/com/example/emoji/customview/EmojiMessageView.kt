@@ -100,7 +100,7 @@ class EmojiMessageView @JvmOverloads constructor(
         isMy = typedArray.getBoolean(R.styleable.EmojiMessageView_isMe, false)
     }
 
-    fun addNewEmoji(count : Int, setupText: String, clicked : Boolean ) {
+    fun addNewEmoji(count : Int, setupText: String, clicked : Boolean, onEmojiClick: () -> Unit ) {
         val view = EmojiView(context)
         view.apply {
             text = setupText
@@ -110,6 +110,7 @@ class EmojiMessageView @JvmOverloads constructor(
                 setOnClickListener {
                     it.isSelected = !it.isSelected
                 }
+                emojiClick = onEmojiClick
                 isSelected = clicked
                 addCustomEmoji(this)
             }

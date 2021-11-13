@@ -74,8 +74,8 @@ class MessageLayout @JvmOverloads constructor(
         )
 
         val totalWidth =
-            if (isMy) message.totalWidth() - MESSAGE_MY_WIDTH_STEP else max(name.totalWidth() +25,
-                message.totalWidth()) + MESSAGE_WIDTH_STEP
+            if (isMy) max(name.totalWidth() + WIDTH_CORRECTION, message.totalWidth() - 50 ) else max(name.totalWidth() + 25,
+                message.totalWidth() - 130) + MESSAGE_WIDTH_STEP
 
         val totalHeight =
             if (isMy) (message.totalHeight() + HEIGHT_CORRECTION)
@@ -116,7 +116,7 @@ class MessageLayout @JvmOverloads constructor(
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         if (!isMy) name.easyLayout(name.easyRect(nameRect, NAME_SIDES, NAME_SIDES))
         val rect = if (isMy) message.easyRect(messageRect, MESSAGE_SIDES, MESSAGE_SIDES)
-        else message.easyRect(messageRect, NAME_SIDES, name.bottom, r)
+        else message.easyRect(messageRect, NAME_SIDES, name.bottom, r, isMy)
 
         message.easyLayout(rect)
     }
@@ -129,9 +129,8 @@ class MessageLayout @JvmOverloads constructor(
         const val MESSAGE_SIDES = 24
         const val NAME_SIDES = 20
         private const val HEIGHT_CORRECTION = 50
-        private const val WIDTH_CORRECTION = 10
+        private const val WIDTH_CORRECTION = 20
         private const val DELAY_MILLIS = 1000L
-        private const val MESSAGE_MY_WIDTH_STEP = 45
         private const val MESSAGE_WIDTH_STEP = 10
     }
 }

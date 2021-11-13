@@ -9,48 +9,48 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.navArgs
 import com.example.emoji.R
 import com.example.emoji.databinding.FragmentProfileBinding
+import com.example.emoji.model.UserModel
 import com.example.emoji.support.loadImage
 import com.example.emoji.viewState.PresenceViewState
-import com.example.emoji.viewState.UserViewState
 import kotlinx.serialization.ExperimentalSerializationApi
 
-
 @ExperimentalSerializationApi
-class ProfileFragment : Fragment() {
-    private val viewModel: ProfileViewModel by viewModels()
+class OtherPeopleProfile : Fragment() {
+    private val viewModel: OtherPeopleProfileViewModel by viewModels()
+    private val args: OtherPeopleProfileArgs by navArgs()
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
+
+    private val model: UserModel by lazy { args.model }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentProfileBinding.inflate(layoutInflater)
-
-        viewModel.getMyUser()
-
-        viewModel.viewState.observe(viewLifecycleOwner, {
-            handleViewState(it)
-        })
-
-        viewModel.viewStatePresence.observe(viewLifecycleOwner, {
-            handleViewStatePresence(it)
-        })
-
         return binding.root
     }
 
-    private fun handleViewStatePresence(viewState: PresenceViewState) =
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        runViewModel()
+        initView()
+    }
+
+    private fun handleViewState(viewState: PresenceViewState) =
         when (viewState) {
-            is PresenceViewState.Loaded -> onLoadedPresence(viewState)
+            is PresenceViewState.Loaded -> onLoaded(viewState)
+
             is PresenceViewState.Loading -> {
                 binding.skeleton.root.visibility = View.VISIBLE
                 binding.real.root.visibility = View.GONE
             }
             is PresenceViewState.Error.NetworkError -> {
+
             }
             is PresenceViewState.SuccessOperation -> {
             }
@@ -58,7 +58,7 @@ class ProfileFragment : Fragment() {
             }
         }
 
-    private fun onLoadedPresence(viewState: PresenceViewState.Loaded) {
+    private fun onLoaded(viewState: PresenceViewState.Loaded) {
         with(binding.real.online) {
             text = viewState.presence.status
             when (viewState.presence.status) {
@@ -68,36 +68,31 @@ class ProfileFragment : Fragment() {
                 else -> setTextColor(resources.getColor(R.color.color_offline))
             }
         }
+
         val handler = Handler(Looper.myLooper()!!)
-        handler.postDelayed({
+
+        handler.postDelayed( {
             binding.skeleton.root.visibility = View.GONE
             binding.real.root.visibility = View.VISIBLE
         }, 1000)
+
     }
 
-    private fun handleViewState(viewState: UserViewState) =
-        when (viewState) {
-            is UserViewState.Loaded -> onLoaded(viewState)
+    private fun initView() {
+        binding.real.logout.visibility = View.GONE
+        binding.real.name.text = model.name
+        loadImage(requireContext(), model.picture, binding.real.avatar)
+    }
 
-            UserViewState.Loading -> {
-            }
-            UserViewState.Error.NetworkError -> {
-            }
-            UserViewState.SuccessOperation -> {
-            }
-            UserViewState.Error.UnexpectedError -> {
-            }
-        }
-
-    private fun onLoaded(viewState: UserViewState.Loaded) {
-        viewModel.getPresence()
-        binding.real.name.text = viewState.user.full_name
-        loadImage(requireContext(), viewState.user.avatar_url, binding.real.avatar)
+    private fun runViewModel() {
+        viewModel.getPresence(model.id)
+        viewModel.viewStatePresence.observe(viewLifecycleOwner, {
+            handleViewState(it)
+        })
     }
 
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
-        viewModel.dispose()
     }
 }

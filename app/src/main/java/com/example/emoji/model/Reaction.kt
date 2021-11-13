@@ -4,7 +4,7 @@ data class Reaction(
     val userId: Int,
     val emoji: String,
     val emojiName: String,
-    val clicked : Boolean,
+    var clicked : Boolean,
 )
 val reactionsMap: Map<String, String> = mapOf(
     "1f389" to "tada",

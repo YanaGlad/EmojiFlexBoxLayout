@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.example.emoji.databinding.FragmentPeopleBinding
 import com.example.emoji.model.UserModel
 import com.example.emoji.viewState.PeopleViewState
@@ -13,8 +14,8 @@ import kotlinx.serialization.ExperimentalSerializationApi
 
 @ExperimentalSerializationApi
 class PeopleFragment : Fragment() {
-    private val viewModel : PeopleViewModel by viewModels()
-    private lateinit var adapter : UserAdapter
+    private val viewModel: PeopleViewModel by viewModels()
+    private lateinit var adapter: UserAdapter
 
     private var _binding: FragmentPeopleBinding? = null
     private val binding get() = _binding!!
@@ -26,7 +27,7 @@ class PeopleFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentPeopleBinding.inflate(layoutInflater)
         return binding.root
@@ -71,7 +72,12 @@ class PeopleFragment : Fragment() {
     }
 
     private fun initRecycler() {
-        adapter = UserAdapter()
+        adapter = UserAdapter(object : UserAdapter.OnUserClickListener {
+            override fun onUserClick(userModel: UserModel, position: Int) {
+                val action = PeopleFragmentDirections.actionPeopleFragmentToOtherPeopleProfile(userModel)
+                findNavController().navigate(action)
+            }
+        })
         binding.usersRecycler.adapter = adapter
     }
 

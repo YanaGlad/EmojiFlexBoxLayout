@@ -12,7 +12,7 @@ import com.example.emoji.model.MessageModel
 import com.example.emoji.support.loadImage
 
 
-class UserDelegate constructor(private val onUserClick: OnUserDelegateClickListener) : AdapterDelegate {
+class UserDelegate constructor(private val onUserClick: OnUserDelegateClickListener, private val onEmojiClick: (String, Int) -> Unit = { a, b -> {} }) : AdapterDelegate {
 
     fun interface OnUserDelegateClickListener {
         fun onUserClick(item: MessageModel, position: Int)
@@ -22,7 +22,8 @@ class UserDelegate constructor(private val onUserClick: OnUserDelegateClickListe
         UserViewHolder(
             view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.message_item, parent, false),
-            onUserClick = onUserClick
+            onUserClick = onUserClick,
+            onEmojiClick = onEmojiClick
         )
 
     override fun onBindViewHolder(
@@ -39,6 +40,7 @@ class UserDelegate constructor(private val onUserClick: OnUserDelegateClickListe
     class UserViewHolder(
         val view: View,
         private val onUserClick: OnUserDelegateClickListener,
+        val onEmojiClick: (String, Int) -> Unit,
     ) : RecyclerView.ViewHolder(view) {
 
         private val binding = MessageItemBinding.bind(view)
@@ -56,10 +58,20 @@ class UserDelegate constructor(private val onUserClick: OnUserDelegateClickListe
                 addCustomEmoji(plus)
                 setupPlusClickListener { onUserClick.onUserClick(messageModel, adapterPosition) }
 
+                val emojiIcons: ArrayList<String> = arrayListOf()
+                val emojiCounts: ArrayList<Int> = arrayListOf()
+                var size = 0
                 for ((emoji, count) in messageModel.countedReactions) {
                     Log.d("check", "${messageModel.message}")
-                    if (emoji != "zulip") //???
-                        addNewEmoji(count, String(Character.toChars(Integer.parseInt(emoji, 16))), )
+                    if (emoji != "zulip" && emoji != "0031-20e3") {
+                        emojiIcons.add(String(Character.toChars(Integer.parseInt(emoji, 16))))
+                        emojiCounts.add(count)
+                        size++
+                    }
+                }
+
+                for (i in 0 until size) {
+                    addNewEmoji(emojiCounts[i], emojiIcons[i], messageModel.listReactions[i].clicked, {onEmojiClick(emojiIcons[i], messageModel.userId)})
                 }
             }
 

@@ -14,7 +14,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 
 class BottomSheetFragment(
-    private val reactMap: Map<String, String>,
+    reactMap: Map<String, String>,
     var onEmogiClick: (reaction: Reaction, position: Int) -> Unit
 ) : BottomSheetDialogFragment() {
 
@@ -30,7 +30,7 @@ class BottomSheetFragment(
     val reactListFromMap : ArrayList<Reaction> = arrayListOf()
 
     init{
-        for ((value, id) in reactMap) reactListFromMap.add(Reaction(-1, value, id))
+        for ((value, id) in reactMap) reactListFromMap.add(Reaction(-1, value, id, false))
     }
 
     override fun getTheme() = R.style.AppBottomSheetDialogTheme

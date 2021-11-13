@@ -16,4 +16,5 @@
     <string name="log_out">Log out</string>
     <string name="error">Ошибка!</string>
     <string name="something_went_wrong_text">Something went wrong</string>
+    <string name="offline">offline</string>
 </resources>

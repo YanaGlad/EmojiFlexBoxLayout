@@ -56,13 +56,13 @@ fun View.easyRect(
     leftBorder: Int,
     topBorder: Int,
     rightBorder: Int,
-    correct: Boolean = false,
+    isMy: Boolean = false,
 ): Rect {
     val viewLayoutParams = this.layoutParams as ViewGroup.MarginLayoutParams
 
     viewLayoutParams.also {
         rect.apply {
-            left = if (correct) leftBorder + it.leftMargin - 25 else leftBorder + it.leftMargin
+            left = if (!isMy) leftBorder + it.leftMargin else leftBorder + it.leftMargin + 25
             top = topBorder + it.topMargin
             right = rightBorder + it.rightMargin
             bottom = top + measuredHeight + it.bottomMargin

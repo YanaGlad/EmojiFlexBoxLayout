@@ -28,7 +28,7 @@
         android:id="@+id/searchView"
         style="@style/SearchStyled"
         android:layout_width="0dp"
-        android:layout_height="80dp"
+        android:layout_height="60dp"
         android:layout_margin="12dp"
         android:layout_marginLeft="12dp"
         android:background="#1E1E1E"
@@ -41,12 +41,11 @@
         app:layout_constraintTop_toTopOf="parent"
         app:searchIcon="@null" />
 
-
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs"
         style="@style/SearchStyled"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="60dp"
         android:background="@color/sub_main_color"
         android:iconifiedByDefault="false"
         android:queryHint="Search... "

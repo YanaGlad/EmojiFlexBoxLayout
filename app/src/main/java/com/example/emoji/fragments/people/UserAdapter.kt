@@ -9,9 +9,9 @@ import com.example.emoji.databinding.UserItemBinding
 import com.example.emoji.model.UserModel
 import com.example.emoji.support.loadImage
 
-class UserAdapter : ListAdapter<UserModel, UserAdapter.ViewHolder>(DiffCallback()) {
+class UserAdapter(val onUserClick: OnUserClickListener) : ListAdapter<UserModel, UserAdapter.ViewHolder>(DiffCallback()) {
 
-    interface OnUserClickListener{
+    interface OnUserClickListener {
         fun onUserClick(userModel: UserModel, position: Int)
     }
 
@@ -35,16 +35,21 @@ class UserAdapter : ListAdapter<UserModel, UserAdapter.ViewHolder>(DiffCallback(
                 LayoutInflater.from(parent.context),
                 parent,
                 false
-            )
+            ),
+            onUserClick
         )
     }
 
-    class ViewHolder(private val binding: UserItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(private val binding: UserItemBinding, val onUserClick: OnUserClickListener) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: UserModel) {
             loadImage(itemView.context, item.picture, binding.avatar)
             binding.name.text = item.name
             binding.email.text = item.email
+
+            itemView.setOnClickListener {
+                onUserClick.onUserClick(item, adapterPosition)
+            }
         }
     }
 }

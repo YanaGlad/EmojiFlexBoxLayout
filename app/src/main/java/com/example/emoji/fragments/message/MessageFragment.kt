@@ -18,6 +18,7 @@ import com.example.emoji.fragments.delegateItem.DateDelegate
 import com.example.emoji.fragments.delegateItem.MainAdapter
 import com.example.emoji.fragments.delegateItem.UserDelegate
 import com.example.emoji.model.*
+import com.example.emoji.support.MyCoolSnackbar
 import com.example.emoji.support.toDelegateItemListWithDate
 import com.example.emoji.viewState.MessageViewState
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -32,7 +33,7 @@ class MessageFragment : Fragment() {
     private val viewModel: MessageViewModel by viewModels()
     private val args: MessageFragmentArgs by navArgs()
 
-    private var usersStub : ArrayList<MessageModel> = arrayListOf()
+    private var usersStub: ArrayList<MessageModel> = arrayListOf()
 
     private lateinit var mainAdapter: MainAdapter
 
@@ -81,14 +82,21 @@ class MessageFragment : Fragment() {
     private fun handleViewState(viewState: MessageViewState) =
         when (viewState) {
             is MessageViewState.Loaded -> onLoaded(viewState)
-
             MessageViewState.Loading -> onLoading()
-            MessageViewState.Error.NetworkError -> {
-            }
+            MessageViewState.Error.NetworkError -> showErrorSnackbar("Нет соединения с интернетом!")
             MessageViewState.SuccessOperation -> onSuccess()
-            MessageViewState.Error.UnexpectedError -> {
-            }
+            MessageViewState.Error.UnexpectedError -> showErrorSnackbar("Ошибка!")
         }
+
+    private fun showErrorSnackbar(message: String) {
+        MyCoolSnackbar(
+            layoutInflater,
+            binding.root,
+            message
+        )
+            .makeSnackBar()
+            .show()
+    }
 
     private fun onSuccess() {
         usersStub.forEach {
@@ -175,14 +183,14 @@ class MessageFragment : Fragment() {
                 date = convertDateFromUnixDay(it.time),
                 month = convertDateFromUnix(it.time).substring(0, 3),
                 isMe = viewModel.myUserName.value == it.authorName,
-                listReactions = it.reactions.map { Reaction(it.userId, it.code, it.name) }
+                listReactions = it.reactions.map { Reaction(it.userId, it.code, it.name, viewModel.myUserId.value == it.userId) }
             )
         }
 
         mappedList.forEach {
             it.countedReactions = countEmoji(it)
-            it.listReactions.forEach { reaction->
-                if(it.userId == viewModel.myUserId.value){
+            it.listReactions.forEach { reaction ->
+                if (it.userId == viewModel.myUserId.value) {
                     reaction.clicked = true
                 }
             }
@@ -231,25 +239,15 @@ class MessageFragment : Fragment() {
         }
     }
 
+
     private fun initAdapter() {
         mainAdapter = MainAdapter()
 
         mainAdapter.apply {
-            addDelegate(UserDelegate { item, _ ->
-                showBottomSheetFragment(item.id)
-            })
+            addDelegate(UserDelegate({ item, _ -> showBottomSheetFragment(item.id) }))
             addDelegate(DateDelegate())
         }
 
         binding.recycleMessage.adapter = mainAdapter
     }
-
 }
-//                        MyCoolSnackbar(
-//                            layoutInflater,
-//                            binding.root,
-//                            "Ошибка!"
-//                        )
-//                            .makeSnackBar()
-//                            .show()
-//                    }

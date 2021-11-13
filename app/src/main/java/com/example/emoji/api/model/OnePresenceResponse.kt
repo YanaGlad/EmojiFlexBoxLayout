@@ -5,21 +5,28 @@ import kotlinx.serialization.Serializable
 
 data class Presence(
     val userId: Int,
-    val time: Long
+    val time: Long,
+    val status: String,
 )
 
 @Serializable
 data class OnePresenceResponse(
-
     @SerialName("timestamp")
-    val timestamp_sec: Long,
+    val timestamp: Long,
 
     @SerialName("status")
-    val status: String
+    val status: String,
 )
 
 @Serializable
+data class TitlePresence(
+    @SerialName("website")
+    val oneResponse: OnePresenceResponse,
+)
+
+
+@Serializable
 data class PresenceResponse(
-    @SerialName("onePresence")
-    val onePresence: Map<String, OnePresenceResponse> = emptyMap()
+    @SerialName("presence")
+    val presence: TitlePresence,
 )
