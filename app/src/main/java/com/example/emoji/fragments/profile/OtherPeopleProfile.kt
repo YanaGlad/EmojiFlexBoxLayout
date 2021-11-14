@@ -10,8 +10,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
+import com.example.emoji.App
 import com.example.emoji.R
 import com.example.emoji.databinding.FragmentProfileBinding
+import com.example.emoji.fragments.channels.pager.StreamsViewModel
 import com.example.emoji.model.UserModel
 import com.example.emoji.support.MyCoolSnackbar
 import com.example.emoji.support.loadImage
@@ -20,7 +22,12 @@ import kotlinx.serialization.ExperimentalSerializationApi
 
 @ExperimentalSerializationApi
 class OtherPeopleProfile : Fragment() {
-    private val viewModel: OtherPeopleProfileViewModel by viewModels()
+    private val viewModel: OtherPeopleProfileViewModel by viewModels {
+        OtherPeopleProfileViewModel.Factory(
+            (activity?.application as App).appComponent.otherPeopleProfileViewModelFactory()
+        )
+    }
+
     private val args: OtherPeopleProfileArgs by navArgs()
 
     private var _binding: FragmentProfileBinding? = null
@@ -47,7 +54,8 @@ class OtherPeopleProfile : Fragment() {
             is PresenceViewState.Loaded -> onLoaded(viewState)
             is PresenceViewState.Loading -> showSkeleton()
             is PresenceViewState.Error.NetworkError -> showErrorSnackbar("Нет соединения с интернетом!")
-            is PresenceViewState.SuccessOperation -> {}
+            is PresenceViewState.SuccessOperation -> {
+            }
             is PresenceViewState.Error.UnexpectedError -> showErrorSnackbar("Ошибка!")
         }
 

@@ -4,8 +4,9 @@ import com.example.emoji.api.Api
 import com.example.emoji.api.model.Presence
 import com.example.emoji.api.model.User
 import io.reactivex.Single
+import javax.inject.Inject
 
-class UserRepository(private val apiService: Api) {
+class UserRepository @Inject constructor(private val apiService: Api) {
     fun getMyUser(): Single<User> {
         return apiService.getMyUser()
             .map {

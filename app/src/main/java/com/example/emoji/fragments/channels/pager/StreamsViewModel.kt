@@ -4,11 +4,12 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.emoji.api.Api
-import com.example.emoji.api.Instance
+import androidx.lifecycle.ViewModelProvider
 import com.example.emoji.model.StreamModel
 import com.example.emoji.repository.StreamRepository
 import com.example.emoji.viewState.StreamViewState
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -16,7 +17,21 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import java.io.IOException
 
 @ExperimentalSerializationApi
-class StreamsViewModel : ViewModel() {
+class StreamsViewModel @AssistedInject constructor(val repo: StreamRepository) : ViewModel() {
+
+    @AssistedFactory
+    interface StreamsViewModelFactory {
+        fun create() : StreamsViewModel
+    }
+
+    class Factory(
+        val factory : StreamsViewModelFactory
+    ) : ViewModelProvider.Factory{
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            return factory.create() as T
+        }
+    }
+
     private val compositeDisposable = CompositeDisposable()
 
     private val _viewState: MutableLiveData<StreamViewState> = MutableLiveData()
@@ -41,9 +56,6 @@ class StreamsViewModel : ViewModel() {
         val listModels: ArrayList<StreamModel> = arrayListOf()
         _viewState.value = StreamViewState.Loading
 
-        val api = Instance.getInstance().create(Api::class.java)
-        val repo = StreamRepository(api)
-
         compositeDisposable.add(
             repo.getStreams()
                 .subscribeOn(Schedulers.io())
@@ -62,5 +74,4 @@ class StreamsViewModel : ViewModel() {
                     }
                 ))
     }
-
 }

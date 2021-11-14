@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.example.emoji.App
 import com.example.emoji.R
 import com.example.emoji.databinding.FragmentMessageBinding
 import com.example.emoji.fragments.delegateItem.DateDelegate
@@ -30,7 +31,11 @@ import kotlin.collections.ArrayList
 
 @ExperimentalSerializationApi
 class MessageFragment : Fragment() {
-    private val viewModel: MessageViewModel by viewModels()
+    private val viewModel: MessageViewModel by viewModels {
+        MessageViewModel.Factory(
+            (activity?.application as App).appComponent.messageViewModelAssistedFactory()
+        )
+    }
     private val args: MessageFragmentArgs by navArgs()
 
     private var usersStub: ArrayList<MessageModel> = arrayListOf()
@@ -235,7 +240,10 @@ class MessageFragment : Fragment() {
 
     private fun updateElementWithReaction(messageId: Int, reaction: Reaction) {
         usersStub.indexOfFirst { it.id == messageId }.let { position ->
-            viewModel.addReaction(messageId, reaction.emojiName)
+            if (!reaction.clicked)
+                viewModel.addReaction(messageId, reaction.emojiName)
+            else viewModel.removeReaction(messageId, reaction.emojiName, topic.title)
+
             viewModel.loadMessages(topic.title) //Todo
         }
     }
@@ -245,7 +253,7 @@ class MessageFragment : Fragment() {
         mainAdapter = MainAdapter()
 
         mainAdapter.apply {
-            addDelegate(UserDelegate({ item, _ -> showBottomSheetFragment(item.id) }))
+            addDelegate(UserDelegate({ item, _ -> showBottomSheetFragment(item.id) }, {emoji, id-> viewModel.addReaction(id, emoji)}))
             addDelegate(DateDelegate())
         }
 

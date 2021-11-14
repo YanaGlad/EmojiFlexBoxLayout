@@ -55,7 +55,7 @@ class EmojiView @JvmOverloads constructor(
         textPaint.color =
             typedArray.getColor(R.styleable.EmojiView_customTextColor, Color.WHITE)
 
-        tapCount = typedArray.getInteger(R.styleable.EmojiView_tap_count, 1)
+        tapCount = typedArray.getInteger(R.styleable.EmojiView_tap_count, 0)
         customSize = typedArray.getDimension(R.styleable.EmojiView_textSize, DEFAULT_SIZE)
 
         typedArray.recycle()
@@ -124,6 +124,7 @@ class EmojiView @JvmOverloads constructor(
             if (tapCount != 0 && checked) {
                 tapCount--
                 checked = false
+                emojiClick()
                 requestLayout()
             }
         }

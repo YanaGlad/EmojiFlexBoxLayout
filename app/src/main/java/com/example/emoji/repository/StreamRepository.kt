@@ -5,8 +5,9 @@ import com.example.emoji.model.StreamModel
 import com.example.emoji.model.TopicModel
 import io.reactivex.Observable
 import io.reactivex.Single
+import javax.inject.Inject
 
-class StreamRepository(private val apiService: Api) {
+class StreamRepository  @Inject constructor(private val apiService: Api) {
 
     fun getStreams(): Observable<StreamModel> {
         return apiService.getAllStreams()

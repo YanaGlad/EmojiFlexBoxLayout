@@ -12,7 +12,8 @@ import com.example.emoji.model.MessageModel
 import com.example.emoji.support.loadImage
 
 
-class UserDelegate constructor(private val onUserClick: OnUserDelegateClickListener, private val onEmojiClick: (String, Int) -> Unit = { a, b -> {} }) : AdapterDelegate {
+class UserDelegate constructor(private val onUserClick: OnUserDelegateClickListener, private val onEmojiClick: (String, Int) -> Unit = { a, b -> {} }) :
+    AdapterDelegate {
 
     fun interface OnUserDelegateClickListener {
         fun onUserClick(item: MessageModel, position: Int)
@@ -25,6 +26,7 @@ class UserDelegate constructor(private val onUserClick: OnUserDelegateClickListe
             onUserClick = onUserClick,
             onEmojiClick = onEmojiClick
         )
+
 
     override fun onBindViewHolder(
         holder: RecyclerView.ViewHolder,
@@ -63,7 +65,7 @@ class UserDelegate constructor(private val onUserClick: OnUserDelegateClickListe
                 var size = 0
                 for ((emoji, count) in messageModel.countedReactions) {
                     Log.d("check", "${messageModel.message}")
-                    if (emoji != "zulip" && emoji != "0031-20e3") {
+                    if (emoji != "zulip" && emoji != "0031-20e3" && emoji != "0037-20e3") {
                         emojiIcons.add(String(Character.toChars(Integer.parseInt(emoji, 16))))
                         emojiCounts.add(count)
                         size++
@@ -71,7 +73,7 @@ class UserDelegate constructor(private val onUserClick: OnUserDelegateClickListe
                 }
 
                 for (i in 0 until size) {
-                    addNewEmoji(emojiCounts[i], emojiIcons[i], messageModel.listReactions[i].clicked, {onEmojiClick(emojiIcons[i], messageModel.userId)})
+                    addNewEmoji(emojiCounts[i], emojiIcons[i], messageModel.listReactions[i].clicked) { onEmojiClick(emojiIcons[i], messageModel.id) }
                 }
             }
 

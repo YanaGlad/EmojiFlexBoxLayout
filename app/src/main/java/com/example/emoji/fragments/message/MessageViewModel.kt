@@ -4,11 +4,13 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.example.emoji.api.Api
-import com.example.emoji.api.Instance
-import com.example.emoji.repository.MessageRepository
+import com.example.emoji.repository.MessageRepositoryImpl
 import com.example.emoji.repository.UserRepository
 import com.example.emoji.viewState.MessageViewState
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -16,7 +18,20 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import java.io.IOException
 
 @ExperimentalSerializationApi
-class MessageViewModel : ViewModel() {
+class MessageViewModel @AssistedInject constructor(var repo : MessageRepositoryImpl, var userRepo : UserRepository, var api : Api): ViewModel() {
+    @AssistedFactory
+    interface MessageViewModelAssistedFactory {
+        fun create() : MessageViewModel
+    }
+
+    class Factory(
+        val factory : MessageViewModelAssistedFactory
+    ) : ViewModelProvider.Factory{
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            return factory.create() as T
+        }
+    }
+
     companion object {
         private const val TAG = "message_view_model_tag"
     }
@@ -31,10 +46,8 @@ class MessageViewModel : ViewModel() {
     val myUserId: MutableLiveData<Int> = MutableLiveData()
 
     fun getMyUser() {
-        val api = Instance.getInstance().create(Api::class.java)
-        val repo = UserRepository(api)
 
-        compositeDisposable.add(repo.getMyUser()
+        compositeDisposable.add(userRepo.getMyUser()
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
             .subscribe(
@@ -63,11 +76,6 @@ class MessageViewModel : ViewModel() {
     fun addReaction(messageId: Int, emoji: String) {
         Log.d(TAG, "MsgId is $messageId emoji is $emoji")
 
-        _viewState.value = MessageViewState.Loading
-
-        val api = Instance.getInstance().create(Api::class.java)
-        val repo = MessageRepository(api)
-
         compositeDisposable.add(
             repo.addReaction(messageId, emoji)
                 .subscribeOn(Schedulers.io())
@@ -86,11 +94,30 @@ class MessageViewModel : ViewModel() {
     }
 
 
-    fun addMessage(text: String) {
+    fun removeReaction(messageId: Int, emoji: String, topicTitle: String) {
+        Log.d(TAG, "Remove MsgId is $messageId emoji is $emoji")
+
         _viewState.value = MessageViewState.Loading
 
-        val api = Instance.getInstance().create(Api::class.java)
-        val repo = MessageRepository(api)
+        compositeDisposable.add(
+            repo.removeReaction(messageId, emoji)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(
+                    {
+                        _viewState.postValue(MessageViewState.SuccessOperation)
+                    },
+                    {
+                        it.convertToViewState()
+                    }
+                )
+        )
+        loadMessages(topicTitle)
+    }
+
+
+    fun addMessage(text: String) {
+        _viewState.value = MessageViewState.Loading
 
         compositeDisposable.add(repo.addMessage(
             streamName = "general",
@@ -112,9 +139,6 @@ class MessageViewModel : ViewModel() {
 
     fun loadMessages(topicTitle: String) {
         _viewState.value = MessageViewState.Loading
-
-        val response = Instance.getInstance().create(Api::class.java)
-        val repo = MessageRepository(response)
 
         val generalMessagesTest = repo.getMessages(
             streamName = "general",

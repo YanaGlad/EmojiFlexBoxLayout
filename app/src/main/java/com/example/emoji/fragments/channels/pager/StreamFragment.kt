@@ -7,11 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.example.emoji.App
 import com.example.emoji.databinding.FragmentSubscribedBinding
 import com.example.emoji.fragments.channels.OnTopicSelected
 import com.example.emoji.fragments.delegateItem.MainAdapter
 import com.example.emoji.fragments.delegateItem.StreamDelegate
 import com.example.emoji.fragments.delegateItem.TopicDelegate
+import com.example.emoji.fragments.message.MessageViewModel
 import com.example.emoji.model.StreamModel
 import com.example.emoji.model.TopicModel
 import com.example.emoji.support.toDelegateStreamsItemList
@@ -21,6 +23,13 @@ import java.util.*
 
 @ExperimentalSerializationApi
 class StreamFragment : Fragment() {
+
+    private val viewModel: StreamsViewModel by viewModels {
+        StreamsViewModel.Factory(
+            (activity?.application as App).appComponent.streamsViewModelFactory()
+        )
+    }
+
     var onSearchHolder = object : OnSearchHolder {
         override fun onSearch(text: String) {
             streamsReal = streamsEvent.filter {
@@ -39,8 +48,6 @@ class StreamFragment : Fragment() {
 
     private var _binding: FragmentSubscribedBinding? = null
     private val binding get() = _binding!!
-
-    private val viewModel: StreamsViewModel by viewModels()
 
     private var subscribed = false
     var streamsReal: List<StreamModel> = listOf()

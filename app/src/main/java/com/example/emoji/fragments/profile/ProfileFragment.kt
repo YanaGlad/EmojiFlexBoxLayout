@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.example.emoji.App
 import com.example.emoji.R
 import com.example.emoji.databinding.FragmentProfileBinding
 import com.example.emoji.support.MyCoolSnackbar
@@ -17,10 +18,13 @@ import com.example.emoji.viewState.PresenceViewState
 import com.example.emoji.viewState.UserViewState
 import kotlinx.serialization.ExperimentalSerializationApi
 
-
 @ExperimentalSerializationApi
 class ProfileFragment : Fragment() {
-    private val viewModel: ProfileViewModel by viewModels()
+    private val viewModel: ProfileViewModel by viewModels {
+        ProfileViewModel.Factory(
+            (activity?.application as App).appComponent.profileViewModelFactory()
+        )
+    }
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
@@ -47,18 +51,19 @@ class ProfileFragment : Fragment() {
     private fun handleViewStatePresence(viewState: PresenceViewState) =
         when (viewState) {
             is PresenceViewState.Loaded -> onLoadedPresence(viewState)
-            is PresenceViewState.Loading -> {
-                binding.skeleton.root.visibility = View.VISIBLE
-                binding.real.root.visibility = View.GONE
-            }
+            is PresenceViewState.Loading -> showSkeleton()
             is PresenceViewState.Error.NetworkError -> showErrorSnackbar("Нет соединения с интернетом!") { viewModel.getPresence() }
-            is PresenceViewState.SuccessOperation -> {
-            }
+            is PresenceViewState.SuccessOperation -> { }
             is PresenceViewState.Error.UnexpectedError -> showErrorSnackbar("Ошибка!") { viewModel.getPresence() }
         }
 
+    private fun showSkeleton() {
+        binding.skeleton.root.visibility = View.VISIBLE
+        binding.real.root.visibility = View.GONE
+    }
+
     private fun showErrorSnackbar(message: String, action: () -> Unit) {
-        viewModel.getMyUser()
+        action()
         MyCoolSnackbar(
             layoutInflater,
             binding.root,

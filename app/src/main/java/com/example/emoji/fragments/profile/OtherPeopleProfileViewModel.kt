@@ -4,18 +4,33 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.emoji.api.Api
-import com.example.emoji.api.Instance
+import androidx.lifecycle.ViewModelProvider
 import com.example.emoji.repository.UserRepository
 import com.example.emoji.viewState.PresenceViewState
 import com.example.emoji.viewState.UserViewState
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.io.IOException
 
 @ExperimentalSerializationApi
-class OtherPeopleProfileViewModel : ViewModel() {
+class OtherPeopleProfileViewModel @AssistedInject constructor(val repo: UserRepository) : ViewModel() {
+
+    @AssistedFactory
+    interface OtherPeopleProfileViewModelFactory {
+        fun create() : OtherPeopleProfileViewModel
+    }
+
+    class Factory(
+        val factory : OtherPeopleProfileViewModelFactory
+    ) : ViewModelProvider.Factory{
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            return factory.create() as T
+        }
+    }
+
     private companion object{
         const val TAG = "TAG_OTHER_PROFILE"
     }
@@ -33,10 +48,7 @@ class OtherPeopleProfileViewModel : ViewModel() {
         }
 
     fun getPresence(userId : Int){
-        val api = Instance.getInstance().create(Api::class.java)
-        val repo = UserRepository(api)
-
-        compositeDisposable.add(repo.getUserPresence(userId)
+       compositeDisposable.add(repo.getUserPresence(userId)
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
             .subscribe(

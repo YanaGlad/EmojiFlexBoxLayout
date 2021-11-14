@@ -46,11 +46,9 @@ class MessageLayout @JvmOverloads constructor(
         message.setTextColor(resources.getColor(R.color.white))
     }
 
-
     fun setUserName(nameTxt: String) {
         name.text = nameTxt
     }
-
 
     fun setMessage(messageTxt: String) {
         message.text = messageTxt
