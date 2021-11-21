@@ -17,16 +17,18 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import java.io.IOException
 
 @ExperimentalSerializationApi
-class StreamsViewModel @AssistedInject constructor(val repo: StreamRepository) : ViewModel() {
+class StreamsViewModel @AssistedInject constructor(
+    private val repo: StreamRepository,
+) : ViewModel() {
 
     @AssistedFactory
     interface StreamsViewModelFactory {
-        fun create() : StreamsViewModel
+        fun create(): StreamsViewModel
     }
 
     class Factory(
-        val factory : StreamsViewModelFactory
-    ) : ViewModelProvider.Factory{
+        val factory: StreamsViewModelFactory,
+    ) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             return factory.create() as T
         }
@@ -57,6 +59,22 @@ class StreamsViewModel @AssistedInject constructor(val repo: StreamRepository) :
         _viewState.value = StreamViewState.Loading
 
         compositeDisposable.add(
+            repo.getLocalStreams()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        Log.d(TAG, "It LOCAL is ${(it as StreamViewState.Loaded).list}")
+                        _viewState.postValue(it)
+                    },
+                    {
+                        Log.d(TAG, "It LOCAL is ERROR ${it.message}")
+                        _viewState.postValue(it.convertStreamToViewState())
+                    }
+                )
+        )
+
+        compositeDisposable.add(
             repo.getStreams()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -70,8 +88,8 @@ class StreamsViewModel @AssistedInject constructor(val repo: StreamRepository) :
                     },
                     {
                         Log.d(TAG, "It is ERROR ${it.message}")
-                        it.convertStreamToViewState()
                     }
-                ))
+                )
+        )
     }
 }

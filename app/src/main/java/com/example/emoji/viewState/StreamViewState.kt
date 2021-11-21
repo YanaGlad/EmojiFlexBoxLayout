@@ -1,6 +1,7 @@
 package com.example.emoji.viewState
 
 import com.example.emoji.model.StreamModel
+import java.io.IOException
 
 sealed class StreamViewState {
     object Loading : StreamViewState()

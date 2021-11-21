@@ -17,16 +17,14 @@ import com.example.emoji.R
 import com.example.emoji.databinding.FragmentMessageBinding
 import com.example.emoji.fragments.delegateItem.DateDelegate
 import com.example.emoji.fragments.delegateItem.MainAdapter
-import com.example.emoji.fragments.delegateItem.UserDelegate
+import com.example.emoji.fragments.delegateItem.MessageDelegate
 import com.example.emoji.model.*
 import com.example.emoji.support.MyCoolSnackbar
 import com.example.emoji.support.toDelegateItemListWithDate
 import com.example.emoji.viewState.MessageViewState
 import kotlinx.serialization.ExperimentalSerializationApi
-
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 @ExperimentalSerializationApi
@@ -47,6 +45,7 @@ class MessageFragment : Fragment() {
 
     private val stream: StreamModel by lazy { args.stream }
     private val topic: TopicModel by lazy { args.topic }
+    private var lastMsgId = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,15 +53,13 @@ class MessageFragment : Fragment() {
         viewModel.getMyUser()
     }
 
-    private fun onLoading() {
-        binding.progressBar.visibility = View.VISIBLE
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentMessageBinding.inflate(layoutInflater)
+
+        usersStub.clear()
 
         viewModel.viewState.observe(viewLifecycleOwner) {
             handleViewState(it)
@@ -87,10 +84,10 @@ class MessageFragment : Fragment() {
     private fun handleViewState(viewState: MessageViewState) =
         when (viewState) {
             is MessageViewState.Loaded -> onLoaded(viewState)
-            MessageViewState.Loading -> onLoading()
-            MessageViewState.Error.NetworkError -> showErrorSnackbar("Нет соединения с интернетом!")
-            MessageViewState.SuccessOperation -> onSuccess()
-            MessageViewState.Error.UnexpectedError -> showErrorSnackbar("Ошибка!")
+            is MessageViewState.Loading -> onLoading()
+            is MessageViewState.Error.NetworkError -> showErrorSnackbar("Нет соединения с интернетом!")
+            is MessageViewState.SuccessOperation -> onSuccess()
+            is MessageViewState.Error.UnexpectedError -> showErrorSnackbar("Ошибка!")
         }
 
     private fun showErrorSnackbar(message: String) {
@@ -102,6 +99,9 @@ class MessageFragment : Fragment() {
         )
             .makeSnackBar()
             .show()
+
+        binding.progressBar.visibility = View.GONE
+        binding.recycleMessage.visibility = View.VISIBLE
     }
 
     private fun onSuccess() {
@@ -184,12 +184,14 @@ class MessageFragment : Fragment() {
                 id = it.id,
                 userId = it.authorId,
                 name = it.authorName,
-                picture = it.avatar_url,
+                picture = it.avatarUrl,
                 message = it.content,
                 date = convertDateFromUnixDay(it.time),
                 month = convertDateFromUnix(it.time).substring(0, 3),
                 isMe = viewModel.myUserName.value == it.authorName,
-                listReactions = it.reactions.map { Reaction(it.userId, it.code, it.name, viewModel.myUserId.value == it.userId) }
+                listReactions = it.reactions.map {
+                    Reaction(it.userId, it.code, it.name, viewModel.myUserId.value == it.userId)
+                }
             )
         }
 
@@ -202,11 +204,13 @@ class MessageFragment : Fragment() {
             }
         }
 
+        usersStub += mappedList
+
+        initAdapter()
+
         mainAdapter.submitList(mappedList.toDelegateItemListWithDate())
         binding.progressBar.visibility = View.GONE
         binding.recycleMessage.visibility = View.VISIBLE
-
-        usersStub = mappedList as ArrayList<MessageModel>
     }
 
 
@@ -219,6 +223,9 @@ class MessageFragment : Fragment() {
         )
     }
 
+    private fun onLoading() {
+        binding.progressBar.visibility = View.VISIBLE
+    }
 
     private fun showBottomSheetFragment(messageId: Int) {
         BottomSheetFragment(reactionsMap) { reaction, _ ->
@@ -239,7 +246,7 @@ class MessageFragment : Fragment() {
     }
 
     private fun updateElementWithReaction(messageId: Int, reaction: Reaction) {
-        usersStub.indexOfFirst { it.id == messageId }.let { position ->
+        usersStub.indexOfFirst { it.id == messageId }.let {
             if (!reaction.clicked)
                 viewModel.addReaction(messageId, reaction.emojiName)
             else viewModel.removeReaction(messageId, reaction.emojiName, topic.title, stream.title)
@@ -253,7 +260,11 @@ class MessageFragment : Fragment() {
         mainAdapter = MainAdapter()
 
         mainAdapter.apply {
-            addDelegate(UserDelegate({ item, _ -> showBottomSheetFragment(item.id) }, { emoji, id -> viewModel.addReaction(id, emoji) }))
+            addDelegate(MessageDelegate(
+                { item, _ -> showBottomSheetFragment(item.id) },
+                { emoji, id -> viewModel.addReaction(id, emoji) },
+                { pos -> viewModel.loadMessages(topic.title, stream.title, pos) })
+            )
             addDelegate(DateDelegate())
         }
 

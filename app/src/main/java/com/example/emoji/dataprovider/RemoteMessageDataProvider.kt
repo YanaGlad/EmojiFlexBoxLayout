@@ -1,9 +1,9 @@
 package com.example.emoji.dataprovider
 
-import com.example.emoji.api.model.*
+import com.example.emoji.api.model.Message
+import com.example.emoji.api.model.Reaction
 import io.reactivex.Completable
 import io.reactivex.Single
-import retrofit2.http.*
 
 interface RemoteMessageDataProvider {
     fun getMessages(queryMap: Map<String, String>): Single<List<Message>>

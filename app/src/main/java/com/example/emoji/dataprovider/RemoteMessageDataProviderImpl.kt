@@ -6,7 +6,9 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import javax.inject.Inject
 
-class RemoteMessageDataProviderImpl @Inject constructor(private val api: Api) : RemoteMessageDataProvider{
+class RemoteMessageDataProviderImpl @Inject constructor(
+    private val api: Api,
+): RemoteMessageDataProvider {
 
     override fun getMessages(queryMap: Map<String, String>): Single<List<Message>> {
         return api.getMessages(queryMap).flatMap { response ->
@@ -19,11 +21,11 @@ class RemoteMessageDataProviderImpl @Inject constructor(private val api: Api) : 
                         topicName = it.topicName,
                         authorId = it.authorId,
                         authorName = it.authorName,
-                        avatar_url = it.avatar_url,
+                        avatarUrl = it.avatarUrl,
                         content = it.content,
                         time = it.time,
                         reactions = it.reactions,
-                        is_me_message = it.is_me_message
+                        isMeMessage = it.isMeMessage
                     )
                 }
             }
@@ -40,5 +42,4 @@ class RemoteMessageDataProviderImpl @Inject constructor(private val api: Api) : 
     override fun removeMessageReaction(id: Int, reactionName: String): Completable {
         return api.removeMessageReaction(id, reactionName)
     }
-
 }

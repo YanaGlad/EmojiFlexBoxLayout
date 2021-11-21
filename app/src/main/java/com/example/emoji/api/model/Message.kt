@@ -8,11 +8,11 @@ data class Message(
     val topicName: String,
     val authorId: Int,
     val authorName: String,
-    val avatar_url: String,
+    val avatarUrl: String,
     val content: String,
     val time: Long,
     val reactions: List<Reaction> = emptyList(),
-    val is_me_message : Boolean
+    val isMeMessage : Boolean
 )
 
 @Serializable
@@ -59,7 +59,7 @@ data class OneMessageResponse(
     val authorName: String,
 
     @SerialName("avatar_url")
-    val avatar_url: String,
+    val avatarUrl: String,
 
     @SerialName("content")
     val content: String,
@@ -74,5 +74,5 @@ data class OneMessageResponse(
     val topicName: String,
 
     @SerialName("is_me_message")
-    val is_me_message : Boolean
+    val isMeMessage : Boolean
 )

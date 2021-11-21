@@ -1,6 +1,7 @@
 package com.example.emoji.fragments.delegateItem
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

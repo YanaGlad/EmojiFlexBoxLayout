@@ -5,6 +5,9 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "stream_table")
 data class StreamsDB(
+    val id: Int,
     @PrimaryKey
-    val id : Int
+    val title: String,
+    val subscribed: Boolean,
+    var clicked: Boolean,
 )

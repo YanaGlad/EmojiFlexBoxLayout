@@ -20,6 +20,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 
 @ExperimentalSerializationApi
 class ProfileFragment : Fragment() {
+
     private val viewModel: ProfileViewModel by viewModels {
         ProfileViewModel.Factory(
             (activity?.application as App).appComponent.profileViewModelFactory()
@@ -48,13 +49,22 @@ class ProfileFragment : Fragment() {
         return binding.root
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+        viewModel.dispose()
+    }
+
     private fun handleViewStatePresence(viewState: PresenceViewState) =
         when (viewState) {
             is PresenceViewState.Loaded -> onLoadedPresence(viewState)
             is PresenceViewState.Loading -> showSkeleton()
-            is PresenceViewState.Error.NetworkError -> showErrorSnackbar("Нет соединения с интернетом!") { viewModel.getPresence() }
-            is PresenceViewState.SuccessOperation -> { }
-            is PresenceViewState.Error.UnexpectedError -> showErrorSnackbar("Ошибка!") { viewModel.getPresence() }
+            is PresenceViewState.Error.NetworkError ->
+                showErrorSnackbar("Нет соединения с интернетом!") { viewModel.getPresence() }
+            is PresenceViewState.SuccessOperation -> {
+            }
+            is PresenceViewState.Error.UnexpectedError ->
+                showErrorSnackbar("Ошибка!") { viewModel.getPresence() }
         }
 
     private fun showSkeleton() {
@@ -87,7 +97,7 @@ class ProfileFragment : Fragment() {
         handler.postDelayed({
             binding.skeleton.root.visibility = View.GONE
             binding.real.root.visibility = View.VISIBLE
-        }, 1000)
+        }, DELAY_SKELETON)
     }
 
     private fun handleViewState(viewState: UserViewState) =
@@ -96,7 +106,9 @@ class ProfileFragment : Fragment() {
 
             UserViewState.Loading -> {
             }
-            UserViewState.Error.NetworkError -> showErrorSnackbar("Нет соединения с интернетом!") { viewModel.getMyUser() }
+            UserViewState.Error.NetworkError -> {
+                showErrorSnackbar("Нет соединения с интернетом!") { viewModel.getMyUser() }
+            }
             UserViewState.SuccessOperation -> {
             }
             UserViewState.Error.UnexpectedError -> showErrorSnackbar("Ошибка!") { viewModel.getMyUser() }
@@ -104,13 +116,11 @@ class ProfileFragment : Fragment() {
 
     private fun onLoaded(viewState: UserViewState.Loaded) {
         viewModel.getPresence()
-        binding.real.name.text = viewState.user.full_name
-        loadImage(requireContext(), viewState.user.avatar_url, binding.real.avatar)
+        binding.real.name.text = viewState.user.fullName
+        loadImage(requireContext(), viewState.user.avatarUrl, binding.real.avatar)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
-        viewModel.dispose()
+    companion object {
+        private const val DELAY_SKELETON = 1000L
     }
 }

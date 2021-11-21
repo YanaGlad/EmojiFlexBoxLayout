@@ -4,10 +4,11 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.emoji.api.Api
-import com.example.emoji.api.Instance
+import androidx.lifecycle.ViewModelProvider
 import com.example.emoji.repository.UserRepository
 import com.example.emoji.viewState.PeopleViewState
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -15,14 +16,29 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import java.io.IOException
 
 @ExperimentalSerializationApi
-class PeopleViewModel : ViewModel() {
+class PeopleViewModel @AssistedInject constructor(
+     private var repo: UserRepository
+) : ViewModel() {
+    @AssistedFactory
+    interface PeopleViewModelAssistedFactory {
+        fun create(): PeopleViewModel
+    }
+
+    class Factory(
+        val factory: PeopleViewModelAssistedFactory,
+    ) : ViewModelProvider.Factory {
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            return factory.create() as T
+        }
+    }
+
     private val compositeDisposable = CompositeDisposable()
 
     private val _viewState: MutableLiveData<PeopleViewState> = MutableLiveData()
     val viewState: LiveData<PeopleViewState>
         get() = _viewState
 
-    private companion object{
+    private companion object {
         const val TAG = "TAG_PEOPLE"
     }
 
@@ -32,15 +48,13 @@ class PeopleViewModel : ViewModel() {
             else -> PeopleViewState.Error.UnexpectedError
         }
 
-    fun dispose(){
+    fun dispose() {
         compositeDisposable.dispose()
     }
 
     fun loadUsers() {
         _viewState.value = PeopleViewState.Loading
 
-        val api = Instance.getInstance().create(Api::class.java)
-        val repo = UserRepository(api)
 
         compositeDisposable.add(repo.getAllUsers()
             .subscribeOn(Schedulers.io())

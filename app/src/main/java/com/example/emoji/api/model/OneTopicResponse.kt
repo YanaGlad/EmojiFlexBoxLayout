@@ -10,5 +10,5 @@ data class OneTopicResponse(
     val name: String,
 
     @SerialName("max_id")
-    val max_id : Int
+    val maxId : Int
 )

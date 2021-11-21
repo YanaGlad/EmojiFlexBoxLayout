@@ -1,6 +1,7 @@
 package com.example.emoji.viewState
 
 import com.example.emoji.api.model.Message
+import java.io.IOException
 
 sealed class MessageViewState {
     object Loading : MessageViewState()

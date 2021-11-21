@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.emoji.repository.UserRepository
+import com.example.emoji.repository.UserRepositoryImpl
 import com.example.emoji.viewState.PresenceViewState
 import com.example.emoji.viewState.UserViewState
 import dagger.assisted.AssistedFactory
@@ -16,29 +16,31 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import java.io.IOException
 
 @ExperimentalSerializationApi
-class OtherPeopleProfileViewModel @AssistedInject constructor(val repo: UserRepository) : ViewModel() {
+class OtherPeopleProfileViewModel @AssistedInject constructor(
+    val repo: UserRepositoryImpl,
+) : ViewModel() {
 
     @AssistedFactory
     interface OtherPeopleProfileViewModelFactory {
-        fun create() : OtherPeopleProfileViewModel
+        fun create(): OtherPeopleProfileViewModel
     }
 
     class Factory(
-        val factory : OtherPeopleProfileViewModelFactory
-    ) : ViewModelProvider.Factory{
+        val factory: OtherPeopleProfileViewModelFactory,
+    ) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             return factory.create() as T
         }
     }
 
-    private companion object{
+    private companion object {
         const val TAG = "TAG_OTHER_PROFILE"
     }
 
     private val compositeDisposable = CompositeDisposable()
 
-    private val _viewStatePresence : MutableLiveData<PresenceViewState> = MutableLiveData()
-    val viewStatePresence : LiveData<PresenceViewState>
+    private val _viewStatePresence: MutableLiveData<PresenceViewState> = MutableLiveData()
+    val viewStatePresence: LiveData<PresenceViewState>
         get() = _viewStatePresence
 
     private fun Throwable.convertToViewState() =
@@ -47,8 +49,8 @@ class OtherPeopleProfileViewModel @AssistedInject constructor(val repo: UserRepo
             else -> UserViewState.Error.UnexpectedError
         }
 
-    fun getPresence(userId : Int){
-       compositeDisposable.add(repo.getUserPresence(userId)
+    fun getPresence(userId: Int) {
+        compositeDisposable.add(repo.getUserPresence(userId)
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
             .subscribe(

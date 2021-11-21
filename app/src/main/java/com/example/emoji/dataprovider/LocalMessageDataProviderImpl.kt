@@ -1,10 +1,8 @@
 package com.example.emoji.dataprovider
 
-import com.example.emoji.api.Api
 import com.example.emoji.api.model.Message
 import com.example.emoji.db.dao.MessageDao
 import com.example.emoji.db.entity.MessageDB
-import com.example.emoji.model.MessageModel
 import io.reactivex.Flowable
 import javax.inject.Inject
 
@@ -17,10 +15,10 @@ class LocalMessageDataProviderImpl @Inject constructor(private val dao: MessageD
                 topicName = item.topicName,
                 authorName = item.authorName,
                 authorId = item.authorId,
-                avatar_url = item.avatar_url,
+                avatarUrl = item.avatarUrl,
                 content = item.content,
                 time = item.time,
-                is_me_message = item.is_me_message
+                isMeMessage = item.isMeMessage
             )
         )
     }
@@ -33,10 +31,10 @@ class LocalMessageDataProviderImpl @Inject constructor(private val dao: MessageD
                     topicName = it.topicName,
                     authorName = it.authorName,
                     authorId = it.authorId,
-                    avatar_url = it.avatar_url,
+                    avatarUrl = it.avatarUrl,
                     content = it.content,
                     time = it.time,
-                    is_me_message = it.is_me_message
+                    isMeMessage = it.isMeMessage
                 )
             }
         )
@@ -44,18 +42,18 @@ class LocalMessageDataProviderImpl @Inject constructor(private val dao: MessageD
 
     override fun getAllMessages(): Flowable<List<Message>> {
         return dao.getAllMessages()
-            .map {
+            .map { it ->
                 it.map {
                     Message(
                         id = it.id,
                         topicName = it.topicName,
                         authorId = it.authorId,
                         authorName = it.authorName,
-                        avatar_url = it.avatar_url,
+                        avatarUrl = it.avatarUrl,
                         content = it.content,
                         time = it.time,
                         reactions = listOf(),
-                        is_me_message = it.is_me_message
+                        isMeMessage = it.isMeMessage
                     )
                 }
             }

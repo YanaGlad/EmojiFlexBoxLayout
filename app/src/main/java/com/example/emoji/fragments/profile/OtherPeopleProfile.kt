@@ -13,7 +13,6 @@ import androidx.navigation.fragment.navArgs
 import com.example.emoji.App
 import com.example.emoji.R
 import com.example.emoji.databinding.FragmentProfileBinding
-import com.example.emoji.fragments.channels.pager.StreamsViewModel
 import com.example.emoji.model.UserModel
 import com.example.emoji.support.MyCoolSnackbar
 import com.example.emoji.support.loadImage
@@ -47,6 +46,11 @@ class OtherPeopleProfile : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         runViewModel()
         initView()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 
     private fun handleViewState(viewState: PresenceViewState) =
@@ -91,7 +95,7 @@ class OtherPeopleProfile : Fragment() {
         handler.postDelayed({
             binding.skeleton.root.visibility = View.GONE
             binding.real.root.visibility = View.VISIBLE
-        }, 1000)
+        }, DELAY_SKELETON)
 
     }
 
@@ -108,8 +112,7 @@ class OtherPeopleProfile : Fragment() {
         })
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
+    companion object{
+        private const val DELAY_SKELETON = 1000L
     }
 }

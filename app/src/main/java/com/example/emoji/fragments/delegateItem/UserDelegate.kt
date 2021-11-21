@@ -65,7 +65,7 @@ class UserDelegate constructor(private val onUserClick: OnUserDelegateClickListe
                 var size = 0
                 for ((emoji, count) in messageModel.countedReactions) {
                     Log.d("check", "${messageModel.message}")
-                    if (emoji != "zulip" && emoji != "0031-20e3" && emoji != "0037-20e3") {
+                    if (emoji != "zulip" && emoji != "0031-20e3" && emoji != "0037-20e3" && emoji != "0033-20e3") {
                         emojiIcons.add(String(Character.toChars(Integer.parseInt(emoji, 16))))
                         emojiCounts.add(count)
                         size++

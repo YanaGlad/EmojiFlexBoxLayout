@@ -103,7 +103,7 @@ class ChannelsFragment : Fragment(), OnTopicSelected {
     }
 
     private fun setupTabs() {
-        val tabs = listOf("Subscribed", "All oneStreams")
+        val tabs = listOf("Subscribed", "All Streams")
 
         TabLayoutMediator(binding.tabs, binding.streamsPager) { tab, pos ->
             tab.text = tabs[pos]
@@ -125,3 +125,4 @@ class ChannelsFragment : Fragment(), OnTopicSelected {
         private const val TAG = "CHANNELS_TAG"
     }
 }
+

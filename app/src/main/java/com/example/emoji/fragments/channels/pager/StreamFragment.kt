@@ -1,6 +1,8 @@
 package com.example.emoji.fragments.channels.pager
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -13,7 +15,6 @@ import com.example.emoji.fragments.channels.OnTopicSelected
 import com.example.emoji.fragments.delegateItem.MainAdapter
 import com.example.emoji.fragments.delegateItem.StreamDelegate
 import com.example.emoji.fragments.delegateItem.TopicDelegate
-import com.example.emoji.fragments.message.MessageViewModel
 import com.example.emoji.model.StreamModel
 import com.example.emoji.model.TopicModel
 import com.example.emoji.support.toDelegateStreamsItemList
@@ -23,6 +24,9 @@ import java.util.*
 
 @ExperimentalSerializationApi
 class StreamFragment : Fragment() {
+
+    private var _binding: FragmentSubscribedBinding? = null
+    private val binding get() = _binding!!
 
     private val viewModel: StreamsViewModel by viewModels {
         StreamsViewModel.Factory(
@@ -45,9 +49,6 @@ class StreamFragment : Fragment() {
     private var onTopicSelected: OnTopicSelected? = null
 
     private lateinit var mainAdapter: MainAdapter
-
-    private var _binding: FragmentSubscribedBinding? = null
-    private val binding get() = _binding!!
 
     private var subscribed = false
     var streamsReal: List<StreamModel> = listOf()
@@ -89,21 +90,32 @@ class StreamFragment : Fragment() {
             StreamViewState.Error.NetworkError -> {
             }
             StreamViewState.SuccessOperation -> {
-                binding.progressBar.visibility = View.GONE
+                binding.skeleton.root.visibility = View.GONE
+                binding.real.root.visibility = View.VISIBLE
             }
             StreamViewState.Error.UnexpectedError -> {
             }
         }
 
     private fun onLoading() {
-        binding.progressBar.visibility = View.VISIBLE
+        binding.skeleton.root.visibility = View.VISIBLE
+        binding.real.root.visibility = View.GONE
     }
 
     private fun onLoaded(viewState: StreamViewState.Loaded) {
-        binding.progressBar.visibility = View.GONE
+        stopSkeleton()
+
         streamsReal = viewState.list
         streamsEvent = viewState.list
         initAdapter()
+    }
+
+    private fun stopSkeleton() {
+        val handler = Handler(Looper.myLooper()!!)
+        handler.postDelayed({
+            binding.skeleton.root.visibility = View.GONE
+            binding.real.root.visibility = View.VISIBLE
+        }, DELAY_SKELETON)
     }
 
     private fun filterSubscribed() {
@@ -127,6 +139,7 @@ class StreamFragment : Fragment() {
                         streamsReal.forEach {
                             it.clicked = false
                         }
+                        notifyDataSetChanged() //TODO что не так с диффом?
                         filterSubscribed()
                         mainAdapter.submitList(streamsReal.toDelegateStreamsItemList(-1))
                         currentViewedModel = null
@@ -142,8 +155,8 @@ class StreamFragment : Fragment() {
                             } as ArrayList<StreamModel>
                         }
 
-                        val delegateList = streamsReal.toDelegateStreamsItemList(pos)
-                        mainAdapter.submitList(delegateList)
+                        mainAdapter.submitList(streamsReal.toDelegateStreamsItemList(pos))
+                        notifyDataSetChanged()
 
                         savedPos = position
                         currentViewedModel = item
@@ -161,12 +174,14 @@ class StreamFragment : Fragment() {
             }))
         }
 
-        binding.recycleStreams.adapter = mainAdapter
+        binding.real.recycleStreams.adapter = mainAdapter
         mainAdapter.submitList(streamsReal.toDelegateStreamsItemList(-1))
     }
 
     companion object {
+        private const val DELAY_SKELETON = 1500L
         private const val TAG = "STREAMS_TAG"
+
         fun getInstance(onTopicSelected: OnTopicSelected, subscribed: Boolean) =
             StreamFragment().apply {
                 this.onTopicSelected = onTopicSelected

@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.emoji.repository.UserRepository
+import com.example.emoji.repository.UserRepositoryImpl
 import com.example.emoji.viewState.PresenceViewState
 import com.example.emoji.viewState.UserViewState
 import dagger.assisted.AssistedFactory

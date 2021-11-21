@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.example.emoji.App
 import com.example.emoji.databinding.FragmentPeopleBinding
 import com.example.emoji.model.UserModel
 import com.example.emoji.support.MyCoolSnackbar
@@ -15,7 +16,12 @@ import kotlinx.serialization.ExperimentalSerializationApi
 
 @ExperimentalSerializationApi
 class PeopleFragment : Fragment() {
-    private val viewModel: PeopleViewModel by viewModels()
+    private val viewModel: PeopleViewModel by viewModels() {
+        PeopleViewModel.Factory(
+            (activity?.application as App).appComponent.usersViewModelFactory()
+        )
+    }
+
     private lateinit var adapter: UserAdapter
 
     private var _binding: FragmentPeopleBinding? = null
@@ -72,9 +78,9 @@ class PeopleFragment : Fragment() {
         val mappedList = viewState.list.map {
             UserModel(
                 id = it.id,
-                name = it.full_name,
+                name = it.fullName,
                 email = it.email,
-                picture = it.avatar_url
+                picture = it.avatarUrl
             )
         }
         adapter.submitList(mappedList)

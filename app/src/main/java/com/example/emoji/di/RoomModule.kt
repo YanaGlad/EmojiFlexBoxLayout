@@ -20,4 +20,15 @@ class RoomModule {
     @Singleton
     fun provideMessageDao(database: MessengerDatabase) = database.messageDao()
 
+    @Provides
+    @Singleton
+    fun provideStreamDao(database: MessengerDatabase) = database.streamsDao()
+
+    @Provides
+    @Singleton
+    fun provideTopicsDao(database: MessengerDatabase) = database.topicsDao()
+
+    @Provides
+    @Singleton
+    fun provideUsersDao(database: MessengerDatabase) = database.usersDao()
 }

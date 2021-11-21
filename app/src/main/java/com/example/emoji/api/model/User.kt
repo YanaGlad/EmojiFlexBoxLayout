@@ -13,10 +13,10 @@ data class AllUsersResponse(
 
 data class User(
     val id: Int,
-    val full_name: String,
+    val fullName: String,
     val email: String,
-    val avatar_url: String,
-    val is_active: Boolean,
+    val avatarUrl: String,
+    val isActive: Boolean,
 )
 
 @Serializable
@@ -26,14 +26,14 @@ data class MyUserResponse(
     val id: Int,
 
     @SerialName("full_name")
-    val full_name: String,
+    val fullName: String,
 
     @SerialName("email")
     val email: String,
 
     @SerialName("avatar_url")
-    val avatar_url: String,
+    val avatarUrl: String,
 
     @SerialName("is_active")
-    val is_active : Boolean
+    val isActive : Boolean
 )

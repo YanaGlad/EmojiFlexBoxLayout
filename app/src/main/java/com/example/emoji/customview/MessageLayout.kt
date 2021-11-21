@@ -72,8 +72,11 @@ class MessageLayout @JvmOverloads constructor(
         )
 
         val totalWidth =
-            if (isMy) max(name.totalWidth() + WIDTH_CORRECTION, message.totalWidth() - 50 ) else max(name.totalWidth() + 25,
-                message.totalWidth() - 130) + MESSAGE_WIDTH_STEP
+            if (isMy) {
+                max(name.totalWidth() + WIDTH_CORRECTION, message.totalWidth() - 50)
+            } else {
+                max(name.totalWidth() + 25, message.totalWidth() - 130) + MESSAGE_WIDTH_STEP
+            }
 
         val totalHeight =
             if (isMy) (message.totalHeight() + HEIGHT_CORRECTION)

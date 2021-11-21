@@ -1,10 +1,21 @@
 package com.example.emoji.api
 
-import com.example.emoji.api.model.*
+import com.example.emoji.api.model.MessagesResponse
+import com.example.emoji.api.model.TopicsResponse
+import com.example.emoji.api.model.MyUserResponse
+import com.example.emoji.api.model.StreamsResponse
+import com.example.emoji.api.model.AllUsersResponse
+import com.example.emoji.api.model.PresenceResponse
+import com.example.emoji.api.model.Reaction
+
 import io.reactivex.Completable
 import io.reactivex.Single
-import retrofit2.http.*
-
+import retrofit2.http.GET
+import retrofit2.http.QueryMap
+import retrofit2.http.POST
+import retrofit2.http.Path
+import retrofit2.http.DELETE
+import retrofit2.http.Query
 
 interface Api {
     @GET("messages")

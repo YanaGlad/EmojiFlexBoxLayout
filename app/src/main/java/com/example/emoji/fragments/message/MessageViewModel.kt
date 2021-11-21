@@ -5,20 +5,22 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.emoji.api.Api
-import com.example.emoji.repository.MessageRepositoryImpl
+import com.example.emoji.repository.MessageRepository
 import com.example.emoji.repository.UserRepository
 import com.example.emoji.viewState.MessageViewState
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.io.IOException
 
 @ExperimentalSerializationApi
-class MessageViewModel @AssistedInject constructor(var repo: MessageRepositoryImpl, var userRepo: UserRepository, var api: Api) : ViewModel() {
+class MessageViewModel @AssistedInject constructor(
+    private var repo: MessageRepository,
+    private var userRepoImpl: UserRepository,
+) : ViewModel() {
+
     @AssistedFactory
     interface MessageViewModelAssistedFactory {
         fun create(): MessageViewModel
@@ -47,19 +49,18 @@ class MessageViewModel @AssistedInject constructor(var repo: MessageRepositoryIm
 
     fun getMyUser() {
 
-        compositeDisposable.add(userRepo.getMyUser()
+        compositeDisposable.add(userRepoImpl.getMyUser()
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
             .subscribe(
                 {
-                    myUserName.postValue(it.full_name)
+                    myUserName.postValue(it.fullName)
                     myUserId.postValue(it.id)
                 },
                 {
                     it.convertToViewState()
                 }
-            )
-        )
+            ))
     }
 
     fun dispose() {
@@ -83,7 +84,8 @@ class MessageViewModel @AssistedInject constructor(var repo: MessageRepositoryIm
                 .subscribe(
                     {
                         Log.d(TAG, "It is $it")
-                        _viewState.postValue(MessageViewState.SuccessOperation)
+                        if ((it as MessageViewState) !is MessageViewState.Error.NetworkError)
+                            _viewState.postValue(MessageViewState.SuccessOperation)
                     },
                     {
                         Log.d(TAG, "It is ERROR ${it.message}")
@@ -117,6 +119,8 @@ class MessageViewModel @AssistedInject constructor(var repo: MessageRepositoryIm
 
 
     fun addMessage(text: String, topicTitle: String, streamTitle: String) {
+        Log.d(TAG, "Loading messages")
+
         _viewState.value = MessageViewState.Loading
 
         compositeDisposable.add(repo.addMessage(
@@ -137,7 +141,9 @@ class MessageViewModel @AssistedInject constructor(var repo: MessageRepositoryIm
         )
     }
 
-    fun loadMessages(topicTitle: String, streamTitle: String) {
+    fun loadMessages(topicTitle: String, streamTitle: String, lastMessageId: Int = 0, messageCount: Int = 1240) {
+        Log.d(TAG, "Loading more... ")
+
         _viewState.value = MessageViewState.Loading
 
         compositeDisposable.add(repo.getLocalMessages()
@@ -150,7 +156,7 @@ class MessageViewModel @AssistedInject constructor(var repo: MessageRepositoryIm
                 },
                 {
                     Log.d(TAG, "It LOCAL is ERROR ${it.message}")
-                    it.convertToViewState()
+                    _viewState.postValue(it.convertToViewState())
                 }
             )
         )
@@ -158,8 +164,8 @@ class MessageViewModel @AssistedInject constructor(var repo: MessageRepositoryIm
         val generalMessagesTest = repo.getMessages(
             streamName = streamTitle,
             topicName = topicTitle,
-            lastMessageId = 0,
-            count = 1000
+            lastMessageId = lastMessageId,
+            count = messageCount
         )
 
         compositeDisposable.add(
@@ -167,12 +173,14 @@ class MessageViewModel @AssistedInject constructor(var repo: MessageRepositoryIm
                 .observeOn(Schedulers.io())
                 .subscribe(
                     {
-                        _viewState.postValue(it)
-                        Log.d(TAG, "It is  ")
+                        if (it !is MessageViewState.Error.NetworkError)
+                            _viewState.postValue(it)
+
+                        Log.d(TAG, "It REMOTE is $it ")
                     },
                     {
-                        Log.d(TAG, "It is ERROR ${it.message}")
-
+                        Log.d(TAG, "It REMOTE is ERROR ${it.message}")
+                        _viewState.postValue(it.convertToViewState())
                     }
                 )
         )

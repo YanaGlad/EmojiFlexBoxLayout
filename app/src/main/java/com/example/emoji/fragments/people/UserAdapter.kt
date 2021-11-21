@@ -9,7 +9,9 @@ import com.example.emoji.databinding.UserItemBinding
 import com.example.emoji.model.UserModel
 import com.example.emoji.support.loadImage
 
-class UserAdapter(val onUserClick: OnUserClickListener) : ListAdapter<UserModel, UserAdapter.ViewHolder>(DiffCallback()) {
+class UserAdapter(
+    private val onUserClick: OnUserClickListener,
+) : ListAdapter<UserModel, UserAdapter.ViewHolder>(DiffCallback()) {
 
     interface OnUserClickListener {
         fun onUserClick(userModel: UserModel, position: Int)
@@ -40,7 +42,10 @@ class UserAdapter(val onUserClick: OnUserClickListener) : ListAdapter<UserModel,
         )
     }
 
-    class ViewHolder(private val binding: UserItemBinding, val onUserClick: OnUserClickListener) : RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(
+        private val binding: UserItemBinding,
+        private val onUserClick: OnUserClickListener,
+    ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: UserModel) {
             loadImage(itemView.context, item.picture, binding.avatar)

@@ -8,13 +8,13 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.emoji.fragments.delegateItem.DelegateItem
-import com.example.emoji.fragments.delegateItem.UserDelegateItem
+import com.example.emoji.fragments.delegateItem.MessageDelegateItem
 import com.example.emoji.fragments.delegateItem.StreamDelegateItem
-import com.example.emoji.fragments.delegateItem.TopicDelegateItem
 import com.example.emoji.fragments.delegateItem.DateDelegateItem
+import com.example.emoji.fragments.delegateItem.TopicDelegateItem
 import com.example.emoji.model.DateModel
-import com.example.emoji.model.PutValueToMonth
 import com.example.emoji.model.MessageModel
+import com.example.emoji.model.PutValueToMonth
 import com.example.emoji.model.StreamModel
 import java.util.*
 
@@ -88,14 +88,14 @@ fun List<MessageModel>.toDelegateItemListWithDate(): List<DelegateItem> {
                     )
                 )
                 delegateItemList.add(
-                    UserDelegateItem(
+                    MessageDelegateItem(
                         userModel
                     )
                 )
                 lastDate = userModel.date
             } else {
                 delegateItemList.add(
-                    UserDelegateItem(
+                    MessageDelegateItem(
                         userModel
                     )
                 )
