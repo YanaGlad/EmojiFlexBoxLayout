@@ -21,7 +21,6 @@ import com.example.emoji.model.Reaction
 import com.example.emoji.model.reactionsMap
 import com.example.emoji.support.MyCoolSnackbar
 import com.example.emoji.support.toDelegateItemListWithDate
-import com.example.emoji.viewState.MessageViewState
 import com.example.emoji.viewState.elm.GlobalDI
 import com.example.emoji.viewState.elm.MessageEffect
 import com.example.emoji.viewState.elm.MessageEvent
@@ -29,6 +28,7 @@ import com.example.emoji.viewState.elm.MessengerState
 import kotlinx.serialization.ExperimentalSerializationApi
 import vivid.money.elmslie.android.base.ElmFragment
 import vivid.money.elmslie.core.store.Store
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -42,6 +42,10 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
 //        )
 //    }
 ///    private val args: MessageFragmentArgs by navArgs()
+
+    //TODO
+    private val streamName = "general"
+    private val topicName = "test"
 
     @Inject
     lateinit var globalDI: GlobalDI
@@ -65,8 +69,11 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
         binding.progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
         binding.recycleMessage.visibility = if (state.isLoading) View.GONE else View.VISIBLE
 
-        initAdapter()
+        initAdapter() //TODO remove
+        setupMessageList(state)
+     }
 
+    private fun setupMessageList(state: MessengerState) {
         val mappedList = (state.items as List<Message>)
             .map {
                 MessageModel(
@@ -77,19 +84,33 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
                     message = it.content,
                     date = convertDateFromUnixDay(it.time),
                     month = convertDateFromUnix(it.time).substring(0, 3),
-                    isMe = false, //viewModel.myUserName.value == it.authorName,
+                    isMe = state.myUserName == it.authorName,
                     listReactions = it.reactions.map {
-                        Reaction(it.userId, it.code, it.name,
-                            false //viewModel.myUserId.value == it.userId
+                        Reaction(
+                            userId = it.userId,
+                            emoji = it.code,
+                            emojiName = it.name,
+                            clicked = state.myUserId == it.userId
                         )
                     })
             }
+
+        mappedList.forEach {
+            it.countedReactions = countEmoji(it)
+            it.listReactions.forEach { reaction ->
+                if (it.userId == state.myUserId) {
+                    reaction.clicked = true
+                }
+            }
+        }
+        usersStub += mappedList
+
         mainAdapter.submitList(mappedList.toDelegateItemListWithDate())
     }
 
     override val initEvent: MessageEvent = MessageEvent.Internal.PageLoading(
-        streamName = "general", //stream.title,
-        topicName = "test", // topic.title,
+        streamName = streamName, //stream.title,
+        topicName = topicName, // topic.title,
         lastMessageId = 0,
         count = 1500
     )
@@ -97,10 +118,6 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (activity?.application as App).appComponent.inject(this)
-
-
-//        viewModel.loadMessages(topic.title, stream.title)
-//        viewModel.getMyUser()
     }
 
     override fun onCreateView(
@@ -110,10 +127,6 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
         _binding = FragmentMessageBinding.inflate(layoutInflater)
 
         usersStub.clear()
-//
-//        viewModel.viewState.observe(viewLifecycleOwner) {
-//            handleViewState(it)
-//        }
         return binding.root
     }
 
@@ -131,17 +144,9 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
         setupSendingMessage()
     }
 
-    private fun handleViewState(viewState: MessageViewState) =
-        when (viewState) {
-            is MessageViewState.Loaded -> onLoaded(viewState)
-            is MessageViewState.Loading -> onLoading()
-            is MessageViewState.Error.NetworkError -> showErrorSnackbar("Нет соединения с интернетом!")
-            is MessageViewState.SuccessOperation -> onSuccess()
-            is MessageViewState.Error.UnexpectedError -> showErrorSnackbar("Ошибка!")
-        }
-
     private fun showErrorSnackbar(message: String) {
-        //   viewModel.loadMessages(topic.title, stream.title)
+        store.accept(MessageEvent.Internal.PageLoading(streamName, topicName))
+
         MyCoolSnackbar(
             layoutInflater,
             binding.root,
@@ -167,8 +172,8 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
     @SuppressLint("SetTextI18n")
     private fun setupToolbar() {
         with(binding) {
-            titleToolbar.text = "#${"general"}" //TODO args
-            textToolbar.text = "#${"test"}"
+            titleToolbar.text = "#${streamName}" //TODO args
+            textToolbar.text = "#${topicName}"
 
             backArrowToolbar.setOnClickListener {
                 findNavController().navigate(MessageFragmentDirections.actionMessageFragmentToChannelsFragment())
@@ -198,8 +203,9 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
         binding.sendPanel.sendButton.setOnClickListener {
             hideKeyboard()
 
-//            viewModel.addMessage(binding.sendPanel.enterMessageEt.text.toString(), topic.title, stream.title)
-//            viewModel.loadMessages(topic.title, stream.title)
+            store.accept(MessageEvent.Internal.AddMessage(streamName, topicName, binding.sendPanel.enterMessageEt.text.toString(), IOException()))
+            store.accept(MessageEvent.Internal.PageLoading(streamName, topicName))
+
             binding.sendPanel.enterMessageEt.setText("")
         }
     }
@@ -227,44 +233,6 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
 
         return finalString
     }
-
-    private fun onLoaded(viewState: MessageViewState.Loaded) {
-        val mappedList = viewState.list.map { it ->
-            MessageModel(
-                id = it.id,
-                userId = it.authorId,
-                name = it.authorName,
-                picture = it.avatarUrl,
-                message = it.content,
-                date = convertDateFromUnixDay(it.time),
-                month = convertDateFromUnix(it.time).substring(0, 3),
-                isMe = false, //viewModel.myUserName.value == it.authorName,
-                listReactions = it.reactions.map {
-                    Reaction(it.userId, it.code, it.name,
-                        false //viewModel.myUserId.value == it.userId
-                    )
-                }
-            )
-        }
-
-        mappedList.forEach {
-            it.countedReactions = countEmoji(it)
-            it.listReactions.forEach { reaction ->
-//                if (it.userId == viewModel.myUserId.value) {
-//                    reaction.clicked = true
-//                }
-            }
-        }
-
-        usersStub += mappedList
-
-        initAdapter()
-
-        mainAdapter.submitList(mappedList.toDelegateItemListWithDate())
-        binding.progressBar.visibility = View.GONE
-        binding.recycleMessage.visibility = View.VISIBLE
-    }
-
 
     private fun hideKeyboard() {
         val inputManager = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

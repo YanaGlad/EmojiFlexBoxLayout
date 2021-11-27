@@ -11,10 +11,18 @@ class MessengerActor constructor(
     override fun execute(command: MessengerCommand): Observable<MessageEvent.Internal> {
         when (command) {
             is MessengerCommand.MessagesLoaded -> {
-                return loadMessages.execute(command.streamName, command.topicName, command.lastMessageId, command.count)
+                return loadMessages.getMessages(command.streamName, command.topicName, command.lastMessageId, command.count)
                     .mapEvents(
                         { list -> MessageEvent.Internal.PageLoaded(list) },
                         { error -> MessageEvent.Internal.ErrorLoading(error) }
+                    )
+            }
+
+            is MessengerCommand.MessagesAdd -> {
+                return loadMessages.addMessage(command.streamName, command.topicName, command.text)
+                    .mapEvents(
+                        successEvent = MessageEvent.Internal.SuccessOperation(),
+                        failureEvent = MessageEvent.Internal.ErrorLoading(command.error)
                     )
             }
         }

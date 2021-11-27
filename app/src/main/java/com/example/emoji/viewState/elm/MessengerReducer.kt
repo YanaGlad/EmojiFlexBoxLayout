@@ -30,15 +30,35 @@ class MessengerReducer : ScreenDslReducer<MessageEvent, MessageEvent.UI, Message
                     count = state.count
                 ) }
             }
+            is MessageEvent.Internal.AddMessage ->{
+                state { copy(
+                    isLoading = true,
+                    isEmptyState = false,
+                    streamName = event.streamName,
+                    topicName = event.topicName,
+                    lastMessageId = event.lastMessageId,
+                    count = event.count,
+                    text = event.text,
+                    error = event.error
+                ) }
+                commands { +MessengerCommand.MessagesAdd(
+                    streamName = state.streamName,
+                    topicName = state.topicName,
+                    error = state.error,
+                    text = state.text
+                ) }
+            }
+            is MessageEvent.Internal.SuccessOperation -> {
+                state { copy(
+                    isLoading = false,
+                    isEmptyState = false,
+                 ) }
+            }
         }
     }
 
     override fun Result.ui(event: MessageEvent.UI): Any {
-        return when (event) {
-            is MessageEvent.UI.LoadFirstPage -> {
-
-            }
-        }
+        return MessageEvent.UI.Stub
     }
 
 }
