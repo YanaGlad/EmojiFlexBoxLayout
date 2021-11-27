@@ -151,7 +151,7 @@ class MessageViewModel @AssistedInject constructor(
             .observeOn(Schedulers.io())
             .subscribe(
                 {
-                    _viewState.postValue(it)
+                    //_viewState.postValue(it)
                     Log.d(TAG, "It LOCAL is  ")
                 },
                 {
@@ -173,8 +173,8 @@ class MessageViewModel @AssistedInject constructor(
                 .observeOn(Schedulers.io())
                 .subscribe(
                     {
-                        if (it !is MessageViewState.Error.NetworkError)
-                            _viewState.postValue(it)
+//                        if (it !is MessageViewState.Error.NetworkError)
+//                            _viewState.postValue(it)
 
                         Log.d(TAG, "It REMOTE is $it ")
                     },

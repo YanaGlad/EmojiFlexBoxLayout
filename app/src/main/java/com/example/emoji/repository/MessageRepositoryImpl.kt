@@ -1,6 +1,7 @@
 package com.example.emoji.repository
 
 import android.util.Log
+import com.example.emoji.api.model.Message
 import com.example.emoji.api.model.MessagesNarrowRequest
 import com.example.emoji.api.model.Reaction
 import com.example.emoji.dataprovider.LocalMessageDataProvider
@@ -71,7 +72,7 @@ class MessageRepositoryImpl @Inject constructor(
         topicName: String,
         lastMessageId: Int,
         count: Int,
-    ): Single<MessageViewState> {
+    ): Single<List<Message>> {
 
         val query = getMessagesQuery(streamName, topicName, lastMessageId, count)
         return Single.create { emitter ->
@@ -81,10 +82,10 @@ class MessageRepositoryImpl @Inject constructor(
                 .subscribe(
                     {
                         local.insertAllMessages(it)
-                        emitter.onSuccess(MessageViewState.Loaded(it))
+                        emitter.onSuccess(it)
                     },
                     {
-                        emitter.onSuccess(it.convertToViewState())
+                        emitter.onError(it)
                     }
                 )
             )
@@ -95,7 +96,7 @@ class MessageRepositoryImpl @Inject constructor(
         compositeDisposable.dispose()
     }
 
-    override fun getLocalMessages(): Single<MessageViewState> {
+    override fun getLocalMessages(): Single<List<Message>> {
         return Single.create { emitter ->
             compositeDisposable.add(local.getAllMessages()
                 .subscribeOn(Schedulers.io())
@@ -103,11 +104,11 @@ class MessageRepositoryImpl @Inject constructor(
                 .subscribe(
                     {
                         Log.d(TAG, "Local messages loaded ")
-                        emitter.onSuccess(MessageViewState.Loaded(it))
+                        emitter.onSuccess(it)
                     },
                     {
                         Log.e(TAG, "Error in local $it")
-                        emitter.onSuccess(it.convertToViewState())
+                      ///  emitter.onError(it)
                     }
                 )
             )
