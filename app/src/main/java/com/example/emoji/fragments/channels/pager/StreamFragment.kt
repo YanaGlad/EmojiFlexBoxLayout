@@ -78,7 +78,7 @@ class StreamFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        _binding = null
+     //   _binding = null
         viewModel.dispose()
     }
 
@@ -179,7 +179,7 @@ class StreamFragment : Fragment() {
     }
 
     companion object {
-        private const val DELAY_SKELETON = 1500L
+        private const val DELAY_SKELETON = 2500L
         private const val TAG = "STREAMS_TAG"
 
         fun getInstance(onTopicSelected: OnTopicSelected, subscribed: Boolean) =

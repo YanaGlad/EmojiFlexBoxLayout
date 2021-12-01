@@ -7,11 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.example.emoji.fragments.delegateItem.DelegateItem
-import com.example.emoji.fragments.delegateItem.MessageDelegateItem
-import com.example.emoji.fragments.delegateItem.StreamDelegateItem
-import com.example.emoji.fragments.delegateItem.DateDelegateItem
-import com.example.emoji.fragments.delegateItem.TopicDelegateItem
+import com.example.emoji.fragments.delegateItem.*
 import com.example.emoji.model.DateModel
 import com.example.emoji.model.MessageModel
 import com.example.emoji.model.PutValueToMonth
@@ -78,9 +74,9 @@ fun List<MessageModel>.toDelegateItemListWithDate(): List<DelegateItem> {
 
     this
         .sortedBy { it.date.toInt() + valueToInt.getValueByMonth(it.month.lowercase(Locale.getDefault())) }
-        .forEach { userModel ->
-            if (userModel.date != lastDate) {
-                val model = DateModel(userModel.date, userModel.month)
+        .forEach { messageModel ->
+            if (messageModel.date != lastDate) {
+                val model = DateModel(messageModel.date, messageModel.month)
                 delegateItemList.add(
                     DateDelegateItem(
                         model.dateNumber.hashCode(), //TODO заменю реальными id, когда будут данные с бэка
@@ -89,14 +85,14 @@ fun List<MessageModel>.toDelegateItemListWithDate(): List<DelegateItem> {
                 )
                 delegateItemList.add(
                     MessageDelegateItem(
-                        userModel
+                        messageModel
                     )
                 )
-                lastDate = userModel.date
+                lastDate = messageModel.date
             } else {
                 delegateItemList.add(
                     MessageDelegateItem(
-                        userModel
+                        messageModel
                     )
                 )
             }

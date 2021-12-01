@@ -6,10 +6,9 @@ import javax.inject.Inject
 
 class GlobalDI @Inject constructor(val repository: MessageRepository) {
 
+    private val loadMessages by lazy { LoadMessages(repository) }
 
-    val loadMessages by lazy { LoadMessages(repository) }
-
-    val actor by lazy { MessengerActor(loadMessages) }
+    private val actor by lazy { MessengerActor(loadMessages) }
 
     val elmStoreFactory by lazy { MessengerStore(actor) }
 

@@ -19,6 +19,8 @@ data class MessengerState(
     val myUserId: Int = 0,
     val myUserName: String = "Yana Glad",
     val text: String = "",
+    val messageId: Int = 0,
+    val emojiName: String = "",
 ) : Parcelable
 
 sealed class MessageEvent {
@@ -31,7 +33,7 @@ sealed class MessageEvent {
         data class PageLoaded(val list: List<Message>) : Internal()
         data class ErrorLoading(val error: Throwable?) : Internal()
 
-        class AddMessage(
+        class MessageAdded(
             val streamName: String,
             val topicName: String,
             val text: String,
@@ -40,17 +42,22 @@ sealed class MessageEvent {
             val count: Int = 1500,
         ) : Internal()
 
+        class ReactionAdded(val messageId: Int, val emojiName: String, val error: Throwable?) : Internal()
+        class ReactionRemoved(val messageId: Int, val emojiName: String, val topicTitle: String, val streamTitle: String, val error: Throwable) : Internal()
+
         class SuccessOperation() : Internal()
     }
 }
 
 sealed class Effect {
-    data class NextPageLoadError(val erorr: Throwable) : Effect()
+    data class ShowErrorSnackBar(val erorr: Throwable) : Effect()
 }
 
 sealed class MessengerCommand {
     class MessagesLoaded(val streamName: String, val topicName: String, val lastMessageId: Int, val count: Int) : MessengerCommand()
     class MessagesAdd(val streamName: String, val topicName: String, val text: String, val error: Throwable?) : MessengerCommand()
+    class ReactionAdd(val messageId: Int, val emojiName: String, val error: Throwable?) : MessengerCommand()
+    class ReactionRemove(val messageId: Int, val emojiName: String, val topicTitle: String, val streamTitle: String, val error: Throwable?) : MessengerCommand()
 }
 
 sealed class MessageEffect {

@@ -3,6 +3,7 @@ package com.example.emoji.fragments.message
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,12 +37,6 @@ import javax.inject.Inject
 
 @ExperimentalSerializationApi
 class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>() {
-    //    private val viewModel: MessageViewModel by viewModels {
-//        MessageViewModel.Factory(
-//            (activity?.application as App).appComponent.messageViewModelAssistedFactory()
-//        )
-//    }
-///    private val args: MessageFragmentArgs by navArgs()
 
     //TODO
     private val streamName = "general"
@@ -50,16 +45,12 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
     @Inject
     lateinit var globalDI: GlobalDI
 
-    private var usersStub: ArrayList<MessageModel> = arrayListOf()
+    private var cachedMessages: ArrayList<MessageModel> = arrayListOf()
 
     private lateinit var mainAdapter: MainAdapter
 
     private var _binding: FragmentMessageBinding? = null
     private val binding get() = _binding!!
-
-    //    private val stream: StreamModel by lazy { args.stream }
-//    private val topic: TopicModel by lazy { args.topic }
-    private var lastMsgId = 0
 
     override fun createStore(): Store<MessageEvent, MessageEffect, MessengerState> {
         return globalDI.elmStoreFactory.provide()
@@ -70,12 +61,14 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
         binding.recycleMessage.visibility = if (state.isLoading) View.GONE else View.VISIBLE
 
         initAdapter() //TODO remove
+        //       mainAdapter.submitList(cachedMessages.toDelegateItemListWithDate())
         setupMessageList(state)
-     }
+        mainAdapter.submitList(cachedMessages.toDelegateItemListWithDate())
+    }
 
     private fun setupMessageList(state: MessengerState) {
         val mappedList = (state.items as List<Message>)
-            .map {
+            .map { it ->
                 MessageModel(
                     id = it.id,
                     userId = it.authorId,
@@ -97,15 +90,15 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
 
         mappedList.forEach {
             it.countedReactions = countEmoji(it)
+            Log.d("TETETETET", "DADAD!ADA ${it}")
+
             it.listReactions.forEach { reaction ->
-                if (it.userId == state.myUserId) {
-                    reaction.clicked = true
-                }
+               reaction.clicked = reaction.userId == 455747 //TODO REAL
             }
         }
-        usersStub += mappedList
+        cachedMessages += mappedList
 
-        mainAdapter.submitList(mappedList.toDelegateItemListWithDate())
+        mainAdapter.submitList(cachedMessages.toDelegateItemListWithDate())
     }
 
     override val initEvent: MessageEvent = MessageEvent.Internal.PageLoading(
@@ -126,7 +119,7 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
     ): View {
         _binding = FragmentMessageBinding.inflate(layoutInflater)
 
-        usersStub.clear()
+        cachedMessages.clear()
         return binding.root
     }
 
@@ -160,11 +153,11 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
     }
 
     private fun onSuccess() {
-        usersStub.forEach {
+        cachedMessages.forEach {
             it.countedReactions = countEmoji(it)
         }
 
-        mainAdapter.submitList(usersStub.toDelegateItemListWithDate())
+        mainAdapter.submitList(cachedMessages.toDelegateItemListWithDate())
         binding.progressBar.visibility = View.GONE
         binding.recycleMessage.visibility = View.VISIBLE
     }
@@ -203,7 +196,7 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
         binding.sendPanel.sendButton.setOnClickListener {
             hideKeyboard()
 
-            store.accept(MessageEvent.Internal.AddMessage(streamName, topicName, binding.sendPanel.enterMessageEt.text.toString(), IOException()))
+            store.accept(MessageEvent.Internal.MessageAdded(streamName, topicName, binding.sendPanel.enterMessageEt.text.toString(), IOException()))
             store.accept(MessageEvent.Internal.PageLoading(streamName, topicName))
 
             binding.sendPanel.enterMessageEt.setText("")
@@ -243,14 +236,10 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
         )
     }
 
-    private fun onLoading() {
-        binding.progressBar.visibility = View.VISIBLE
-    }
-
     private fun showBottomSheetFragment(messageId: Int) {
         BottomSheetFragment(reactionsMap) { reaction, _ ->
             updateElementWithReaction(messageId, reaction)
-            mainAdapter.submitList(usersStub.toDelegateItemListWithDate())
+            mainAdapter.submitList(cachedMessages.toDelegateItemListWithDate())
         }.show(childFragmentManager, "bottom_tag")
     }
 
@@ -266,12 +255,14 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
     }
 
     private fun updateElementWithReaction(messageId: Int, reaction: Reaction) {
-        usersStub.indexOfFirst { it.id == messageId }.let {
-//            if (!reaction.clicked)
-//                viewModel.addReaction(messageId, reaction.emojiName)
-//            else viewModel.removeReaction(messageId, reaction.emojiName, topic.title, stream.title)
 
-            //  viewModel.loadMessages(topic.title, stream.title) //Todo
+        cachedMessages.indexOfFirst { it.id == messageId }.let {
+            if (!reaction.clicked) {
+                store.accept(MessageEvent.Internal.ReactionAdded(messageId, reaction.emojiName, IOException()))
+            } else {
+                store.accept(MessageEvent.Internal.ReactionRemoved(messageId, reaction.emojiName, topicName, streamName, IOException()))
+            }
+
             store.accept(MessageEvent.Internal.PageLoading(
                 streamName = "general", // stream.title, //TODO args
                 topicName = "test", //topic.title,
