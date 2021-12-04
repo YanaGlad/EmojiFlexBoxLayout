@@ -9,6 +9,9 @@ import com.example.emoji.databinding.UserItemBinding
 import com.example.emoji.model.UserModel
 import com.example.emoji.support.loadImage
 
+/**
+ * @author y.gladkikh
+ */
 class UserAdapter(
     private val onUserClick: OnUserClickListener,
 ) : ListAdapter<UserModel, UserAdapter.ViewHolder>(DiffCallback()) {

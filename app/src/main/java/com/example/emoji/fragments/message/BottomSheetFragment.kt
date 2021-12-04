@@ -12,7 +12,9 @@ import com.example.emoji.model.Reaction
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-
+/**
+ * @author y.gladkikh
+ */
 class BottomSheetFragment(
     reactMap: Map<String, String>,
     var onEmogiClick: (reaction: Reaction, position: Int) -> Unit

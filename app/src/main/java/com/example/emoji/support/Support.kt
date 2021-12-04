@@ -14,7 +14,9 @@ import com.example.emoji.model.PutValueToMonth
 import com.example.emoji.model.StreamModel
 import java.util.*
 
-
+/**
+ * @author y.gladkikh
+ */
 fun loadImage(context: Context, url: String?, view: ImageView) {
     Glide.with(context)
         .load(url)

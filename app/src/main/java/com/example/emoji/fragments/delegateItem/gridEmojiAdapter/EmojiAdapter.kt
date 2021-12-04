@@ -8,6 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.emoji.databinding.EmojiItemBinding
 import com.example.emoji.model.Reaction
 
+/**
+ * @author y.gladkikh
+ */
 class EmojiAdapter internal constructor(private val clickListener: OnEmojiClickListener) :
     ListAdapter<Reaction, EmojiAdapter.EmojiViewHolder>(OperationDiffUtil()) {
 

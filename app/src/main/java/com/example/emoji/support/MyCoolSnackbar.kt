@@ -8,6 +8,9 @@ import android.widget.FrameLayout
 import com.example.emoji.databinding.SomethingWentWrongToastBinding
 import com.google.android.material.snackbar.Snackbar
 
+/**
+ * @author y.gladkikh
+ */
 class MyCoolSnackbar(
     private val layoutInflater: LayoutInflater,
     private val root: ViewGroup,

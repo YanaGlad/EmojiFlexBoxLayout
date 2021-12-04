@@ -6,6 +6,9 @@ import dagger.Module
 import kotlinx.serialization.ExperimentalSerializationApi
 import javax.inject.Singleton
 
+/**
+ * @author y.gladkikh
+ */
 @ExperimentalSerializationApi
 @Module
 interface RepositoryModule {

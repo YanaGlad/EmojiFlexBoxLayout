@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.emoji.repository.UserRepository
-import com.example.emoji.repository.UserRepositoryImpl
 import com.example.emoji.viewState.PresenceViewState
 import com.example.emoji.viewState.UserViewState
 import dagger.assisted.AssistedFactory
@@ -16,6 +15,9 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.io.IOException
 
+/**
+ * @author y.gladkikh
+ */
 @ExperimentalSerializationApi
 class ProfileViewModel @AssistedInject constructor(val repo: UserRepository) : ViewModel() {
     @AssistedFactory

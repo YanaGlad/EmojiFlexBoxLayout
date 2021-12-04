@@ -11,7 +11,9 @@ import com.example.emoji.databinding.MessageItemBinding
 import com.example.emoji.model.MessageModel
 import com.example.emoji.support.loadImage
 
-
+/**
+ * @author y.gladkikh
+ */
 class MessageDelegate constructor(
     private val onUserClick: OnUserDelegateClickListener,
     private val onEmojiClick: (String, Int) -> Unit = { _, _ -> run {} },

@@ -19,6 +19,9 @@ import com.example.emoji.support.loadImage
 import com.example.emoji.viewState.PresenceViewState
 import kotlinx.serialization.ExperimentalSerializationApi
 
+/**
+ * @author y.gladkikh
+ */
 @ExperimentalSerializationApi
 class OtherPeopleProfile : Fragment() {
     private val viewModel: OtherPeopleProfileViewModel by viewModels {

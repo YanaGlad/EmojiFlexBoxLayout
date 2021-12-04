@@ -9,6 +9,9 @@ import com.example.emoji.R
 import com.example.emoji.databinding.TopicItemBinding
 import com.example.emoji.model.TopicModel
 
+/**
+ * @author y.gladkikh
+ */
 data class TopicDelegate constructor(private val onTopicClick: OnTopicDelegateClickListener) : AdapterDelegate {
 
     interface OnTopicDelegateClickListener {

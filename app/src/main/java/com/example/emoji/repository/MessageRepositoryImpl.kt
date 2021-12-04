@@ -17,6 +17,9 @@ import kotlinx.serialization.json.Json
 import java.io.IOException
 import javax.inject.Inject
 
+/**
+ * @author y.gladkikh
+ */
 @ExperimentalSerializationApi
 class MessageRepositoryImpl @Inject constructor(
     private val remote: RemoteMessageDataProvider,

@@ -14,6 +14,9 @@ import com.example.emoji.support.MyCoolSnackbar
 import com.example.emoji.viewState.PeopleViewState
 import kotlinx.serialization.ExperimentalSerializationApi
 
+/**
+ * @author y.gladkikh
+ */
 @ExperimentalSerializationApi
 class PeopleFragment : Fragment() {
     private val viewModel: PeopleViewModel by viewModels() {

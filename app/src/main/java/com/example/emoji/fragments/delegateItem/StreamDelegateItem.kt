@@ -2,6 +2,9 @@ package com.example.emoji.fragments.delegateItem
 
 import com.example.emoji.model.StreamModel
 
+/**
+ * @author y.gladkikh
+ */
 class StreamDelegateItem(
     private val streamModel: StreamModel
 ) : DelegateItem {

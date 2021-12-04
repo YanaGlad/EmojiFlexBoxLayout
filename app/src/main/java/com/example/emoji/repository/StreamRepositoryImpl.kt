@@ -13,6 +13,9 @@ import io.reactivex.schedulers.Schedulers
 import java.io.IOException
 import javax.inject.Inject
 
+/**
+ * @author y.gladkikh
+ */
 class StreamRepositoryImpl @Inject constructor(
     private val remote: RemoteStreamDataProvider,
     private val localStreams: LocalStreamDataProvider,

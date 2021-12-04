@@ -10,6 +10,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.emoji.databinding.FragmentMainBinding
 
+/**
+ * @author y.gladkikh
+ */
 class MainFragment : Fragment() {
 
     private var _binding: FragmentMainBinding? = null

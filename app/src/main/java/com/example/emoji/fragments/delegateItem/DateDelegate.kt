@@ -7,7 +7,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.emoji.databinding.DateItemBinding
 import com.example.emoji.model.DateModel
 
-
+/**
+ * @author y.gladkikh
+ */
 class DateDelegate : AdapterDelegate {
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =

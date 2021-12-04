@@ -18,6 +18,9 @@ import com.example.emoji.viewState.PresenceViewState
 import com.example.emoji.viewState.UserViewState
 import kotlinx.serialization.ExperimentalSerializationApi
 
+/**
+ * @author y.gladkikh
+ */
 @ExperimentalSerializationApi
 class ProfileFragment : Fragment() {
 

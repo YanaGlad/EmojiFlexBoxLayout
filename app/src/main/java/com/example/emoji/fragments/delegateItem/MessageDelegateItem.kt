@@ -2,7 +2,9 @@ package com.example.emoji.fragments.delegateItem
 
 import com.example.emoji.model.MessageModel
 
-
+/**
+ * @author y.gladkikh
+ */
 data class MessageDelegateItem(
     val messageModel: MessageModel
 ) : DelegateItem {

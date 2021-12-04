@@ -15,6 +15,9 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.io.IOException
 
+/**
+ * @author y.gladkikh
+ */
 @ExperimentalSerializationApi
 class OtherPeopleProfileViewModel @AssistedInject constructor(
     val repo: UserRepositoryImpl,

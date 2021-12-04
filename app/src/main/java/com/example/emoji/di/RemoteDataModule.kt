@@ -5,6 +5,9 @@ import dagger.Binds
 import dagger.Module
 import javax.inject.Singleton
 
+/**
+ * @author y.gladkikh
+ */
 @Module
 interface RemoteDataModule {
     @Binds

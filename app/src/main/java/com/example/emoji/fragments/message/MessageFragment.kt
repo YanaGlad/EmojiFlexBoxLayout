@@ -3,7 +3,6 @@ package com.example.emoji.fragments.message
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,10 +21,10 @@ import com.example.emoji.model.Reaction
 import com.example.emoji.model.reactionsMap
 import com.example.emoji.support.MyCoolSnackbar
 import com.example.emoji.support.toDelegateItemListWithDate
-import com.example.emoji.viewState.elm.GlobalDI
-import com.example.emoji.viewState.elm.MessageEffect
-import com.example.emoji.viewState.elm.MessageEvent
-import com.example.emoji.viewState.elm.MessengerState
+import com.example.emoji.viewState.elm.messanger.MessageEffect
+import com.example.emoji.viewState.elm.messanger.MessageEvent
+import com.example.emoji.viewState.elm.messanger.MessengerGlobalDI
+import com.example.emoji.viewState.elm.messanger.MessengerState
 import kotlinx.serialization.ExperimentalSerializationApi
 import vivid.money.elmslie.android.base.ElmFragment
 import vivid.money.elmslie.core.store.Store
@@ -35,6 +34,9 @@ import java.util.*
 import javax.inject.Inject
 
 
+/**
+ * @author y.gladkikh
+ */
 @ExperimentalSerializationApi
 class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>() {
 
@@ -43,7 +45,7 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
     private val topicName = "test"
 
     @Inject
-    lateinit var globalDI: GlobalDI
+    lateinit var messengerGlobalDI: MessengerGlobalDI
 
     private var cachedMessages: ArrayList<MessageModel> = arrayListOf()
 
@@ -52,8 +54,15 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
     private var _binding: FragmentMessageBinding? = null
     private val binding get() = _binding!!
 
+    override val initEvent: MessageEvent = MessageEvent.Internal.PageLoading(
+        streamName = streamName, //stream.title,
+        topicName = topicName, // topic.title,
+        lastMessageId = 0,
+        count = 1500
+    )
+
     override fun createStore(): Store<MessageEvent, MessageEffect, MessengerState> {
-        return globalDI.elmStoreFactory.provide()
+        return messengerGlobalDI.elmStoreFactory.provide()
     }
 
     override fun render(state: MessengerState) {
@@ -61,7 +70,7 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
         binding.recycleMessage.visibility = if (state.isLoading) View.GONE else View.VISIBLE
 
         initAdapter() //TODO remove
-        //       mainAdapter.submitList(cachedMessages.toDelegateItemListWithDate())
+        //mainAdapter.submitList(cachedMessages.toDelegateItemListWithDate())
         setupMessageList(state)
         mainAdapter.submitList(cachedMessages.toDelegateItemListWithDate())
     }
@@ -90,7 +99,6 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
 
         mappedList.forEach {
             it.countedReactions = countEmoji(it)
-            Log.d("TETETETET", "DADAD!ADA ${it}")
 
             it.listReactions.forEach { reaction ->
                reaction.clicked = reaction.userId == 455747 //TODO REAL
@@ -100,13 +108,6 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
 
         mainAdapter.submitList(cachedMessages.toDelegateItemListWithDate())
     }
-
-    override val initEvent: MessageEvent = MessageEvent.Internal.PageLoading(
-        streamName = streamName, //stream.title,
-        topicName = topicName, // topic.title,
-        lastMessageId = 0,
-        count = 1500
-    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -255,7 +256,6 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
     }
 
     private fun updateElementWithReaction(messageId: Int, reaction: Reaction) {
-
         cachedMessages.indexOfFirst { it.id == messageId }.let {
             if (!reaction.clicked) {
                 store.accept(MessageEvent.Internal.ReactionAdded(messageId, reaction.emojiName, IOException()))

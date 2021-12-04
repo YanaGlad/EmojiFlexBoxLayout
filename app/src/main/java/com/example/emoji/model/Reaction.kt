@@ -1,5 +1,8 @@
 package com.example.emoji.model
 
+/**
+ * @author y.gladkikh
+ */
 data class Reaction(
     val userId: Int,
     val emoji: String,

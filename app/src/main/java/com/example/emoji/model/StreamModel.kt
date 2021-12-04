@@ -3,6 +3,9 @@ package com.example.emoji.model
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ * @author y.gladkikh
+ */
 @Parcelize
 data class StreamModel(
     val id : Int,

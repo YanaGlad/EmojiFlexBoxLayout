@@ -4,6 +4,9 @@ import androidx.room.*
 import com.example.emoji.db.entity.UserDB
 import io.reactivex.Flowable
 
+/**
+ * @author y.gladkikh
+ */
 @Dao
 interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)

@@ -1,5 +1,8 @@
 package com.example.emoji.model
 
+/**
+ * @author y.gladkikh
+ */
 data class MessageModel(
     val id : Int,
     val userId : Int,

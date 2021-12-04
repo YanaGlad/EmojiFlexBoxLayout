@@ -3,6 +3,9 @@ package com.example.emoji.model
 import java.util.*
 import kotlin.collections.HashMap
 
+/**
+ * @author y.gladkikh
+ */
 enum class Month {
     JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEPT, OCT, NOV, DEC
 }

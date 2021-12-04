@@ -2,7 +2,9 @@ package com.example.emoji.fragments.delegateItem
 
 import com.example.emoji.model.DateModel
 
-
+/**
+ * @author y.gladkikh
+ */
 data class DateDelegateItem(
     val id : Int,
     val value : DateModel

@@ -7,6 +7,9 @@ import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
 
+/**
+ * @author y.gladkikh
+ */
 @Module
 class RoomModule {
     @Provides

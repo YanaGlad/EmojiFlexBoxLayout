@@ -8,7 +8,9 @@ import com.example.emoji.db.dao.TopicDao
 import com.example.emoji.db.dao.UserDao
 import com.example.emoji.db.entity.*
 
-
+/**
+ * @author y.gladkikh
+ */
 @Database(entities = [
     MessageDB::class,
     ReactionsDB::class,

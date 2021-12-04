@@ -7,6 +7,9 @@ import com.example.emoji.dataprovider.RemoteUserDataProvider
 import io.reactivex.Single
 import javax.inject.Inject
 
+/**
+ * @author y.gladkikh
+ */
 class UserRepositoryImpl @Inject constructor(
     private val remote: RemoteUserDataProvider,
     private val local: LocalUserDataProvider,

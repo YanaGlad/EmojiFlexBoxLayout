@@ -4,7 +4,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 
-
+/**
+ * @author y.gladkikh
+ */
 class MainAdapter : ListAdapter<DelegateItem, RecyclerView.ViewHolder>(DelegateAdapterItemCallback()) {
     private val delegates: MutableList<AdapterDelegate> = mutableListOf()
 

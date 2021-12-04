@@ -5,6 +5,9 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 
+/**
+ * @author y.gladkikh
+ */
 class PagerAdapter(
     fragmentManager: FragmentManager,
     lifecycle: Lifecycle

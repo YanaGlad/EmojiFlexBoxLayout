@@ -1,15 +1,12 @@
 package com.example.emoji.db.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.OnConflictStrategy
-import androidx.room.Delete
-import androidx.room.Update
+import androidx.room.*
 import com.example.emoji.db.entity.StreamsDB
-import io.reactivex.Flowable
 import io.reactivex.Single
 
+/**
+ * @author y.gladkikh
+ */
 @Dao
 interface StreamDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)

@@ -1,6 +1,7 @@
 package com.example.emoji.di
 
-import com.example.emoji.api.*
+import com.example.emoji.api.Api
+import com.example.emoji.api.HeaderInterceptor
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -15,6 +16,9 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 
+/**
+ * @author y.gladkikh
+ */
 @Module
 class RetrofitModule {
     private val json = Json { ignoreUnknownKeys = true }

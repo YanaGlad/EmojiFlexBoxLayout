@@ -2,6 +2,9 @@ package com.example.emoji.viewState
 
 import com.example.emoji.model.TopicModel
 
+/**
+ * @author y.gladkikh
+ */
 sealed class TopicViewState {
     object Loading : TopicViewState()
 

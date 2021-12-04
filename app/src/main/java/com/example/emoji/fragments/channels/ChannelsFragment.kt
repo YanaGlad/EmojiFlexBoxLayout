@@ -19,6 +19,9 @@ import io.reactivex.ObservableOnSubscribe
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.serialization.ExperimentalSerializationApi
 
+/**
+ * @author y.gladkikh
+ */
 interface OnTopicSelected {
     fun moveToTopicDiscussion(currentViewedModel: StreamModel, topicModel: TopicModel)
 }

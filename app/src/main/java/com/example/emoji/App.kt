@@ -6,6 +6,9 @@ import com.example.emoji.di.ApplicationModule
 import com.example.emoji.di.DaggerAppComponent
 import kotlinx.serialization.ExperimentalSerializationApi
 
+/**
+ * @author y.gladkikh
+ */
 @ExperimentalSerializationApi
 class App : Application() {
 

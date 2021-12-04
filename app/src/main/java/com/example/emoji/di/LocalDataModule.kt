@@ -1,18 +1,13 @@
 package com.example.emoji.di
 
-import com.example.emoji.dataprovider.LocalUserDataProvider
-import com.example.emoji.dataprovider.LocalMessageDataProviderImpl
-import com.example.emoji.dataprovider.LocalMessageDataProvider
-import com.example.emoji.dataprovider.LocalStreamDataProviderImpl
-import com.example.emoji.dataprovider.LocalStreamDataProvider
-import com.example.emoji.dataprovider.LocalTopicDataProvider
-import com.example.emoji.dataprovider.LocalTopicDataProviderImpl
-import com.example.emoji.dataprovider.LocalUserDataProviderImpl
-
+import com.example.emoji.dataprovider.*
 import dagger.Binds
 import dagger.Module
 import javax.inject.Singleton
 
+/**
+ * @author y.gladkikh
+ */
 @Module
 interface LocalDataModule {
 

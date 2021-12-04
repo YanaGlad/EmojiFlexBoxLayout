@@ -7,8 +7,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import com.example.emoji.App
 import com.example.emoji.databinding.FragmentSubscribedBinding
 import com.example.emoji.fragments.channels.OnTopicSelected
@@ -18,20 +16,63 @@ import com.example.emoji.fragments.delegateItem.TopicDelegate
 import com.example.emoji.model.StreamModel
 import com.example.emoji.model.TopicModel
 import com.example.emoji.support.toDelegateStreamsItemList
-import com.example.emoji.viewState.StreamViewState
+import com.example.emoji.viewState.elm.stream.StreamEffect
+import com.example.emoji.viewState.elm.stream.StreamEvent
+import com.example.emoji.viewState.elm.stream.StreamGlobalDI
+import com.example.emoji.viewState.elm.stream.StreamState
 import kotlinx.serialization.ExperimentalSerializationApi
+import vivid.money.elmslie.android.base.ElmFragment
+import vivid.money.elmslie.core.store.Store
 import java.util.*
+import javax.inject.Inject
 
+/**
+ * @author y.gladkikh
+ */
 @ExperimentalSerializationApi
-class StreamFragment : Fragment() {
+class StreamFragment : ElmFragment<StreamEvent, StreamEffect, StreamState>() {
 
-    private var _binding: FragmentSubscribedBinding? = null
-    private val binding get() = _binding!!
+    interface OnSearchHolder {
+        fun onSearch(text: String)
+    }
 
-    private val viewModel: StreamsViewModel by viewModels {
-        StreamsViewModel.Factory(
-            (activity?.application as App).appComponent.streamsViewModelFactory()
-        )
+    var currentViewedModel: StreamModel? = null
+    var savedPos: Int = -1
+
+    @Inject
+    lateinit var streamGlobalDI: StreamGlobalDI
+
+    override val initEvent: StreamEvent
+        get() = StreamEvent.Internal.PageLoading()
+
+
+    override fun render(state: StreamState) {
+        if (state.isLoading) showSkeleton() else stopSkeleton()
+
+        if (state.model != null) {
+            streamsReal.add(state.model)
+            streamsEvent.add(state.model)
+        }
+        initAdapter()
+
+    }
+
+    override fun createStore(): Store<StreamEvent, StreamEffect, StreamState> {
+        return streamGlobalDI.elmStoreFactory.provide()
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        _binding = FragmentSubscribedBinding.inflate(layoutInflater)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        filterSubscribed()
+        initAdapter()
     }
 
     var onSearchHolder = object : OnSearchHolder {
@@ -46,69 +87,27 @@ class StreamFragment : Fragment() {
         }
     }
 
+    private var _binding: FragmentSubscribedBinding? = null
+    private val binding get() = _binding!!
+
     private var onTopicSelected: OnTopicSelected? = null
 
     private lateinit var mainAdapter: MainAdapter
 
     private var subscribed = false
-    var streamsReal: List<StreamModel> = listOf()
-    var streamsEvent: List<StreamModel> = listOf()
+    var streamsReal: ArrayList<StreamModel> = arrayListOf()
+    var streamsEvent: ArrayList<StreamModel> = arrayListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.loadStreams()
+        (activity?.application as App).appComponent.inject(this)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
-        _binding = FragmentSubscribedBinding.inflate(layoutInflater)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        viewModel.viewState.observe(viewLifecycleOwner, {
-            handleViewState(it)
-        })
-        filterSubscribed()
-        initAdapter()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-     //   _binding = null
-        viewModel.dispose()
-    }
-
-    private fun handleViewState(viewState: StreamViewState) =
-        when (viewState) {
-            is StreamViewState.Loaded -> onLoaded(viewState)
-
-            StreamViewState.Loading -> onLoading()
-            StreamViewState.Error.NetworkError -> {
-            }
-            StreamViewState.SuccessOperation -> {
-                binding.skeleton.root.visibility = View.GONE
-                binding.real.root.visibility = View.VISIBLE
-            }
-            StreamViewState.Error.UnexpectedError -> {
-            }
-        }
-
-    private fun onLoading() {
+    private fun showSkeleton() {
         binding.skeleton.root.visibility = View.VISIBLE
         binding.real.root.visibility = View.GONE
     }
 
-    private fun onLoaded(viewState: StreamViewState.Loaded) {
-        stopSkeleton()
-
-        streamsReal = viewState.list
-        streamsEvent = viewState.list
-        initAdapter()
-    }
 
     private fun stopSkeleton() {
         val handler = Handler(Looper.myLooper()!!)
@@ -125,9 +124,6 @@ class StreamFragment : Fragment() {
             } as ArrayList<StreamModel>
         }
     }
-
-    var currentViewedModel: StreamModel? = null
-    var savedPos: Int = -1
 
     private fun initAdapter() {
         mainAdapter = MainAdapter()
@@ -188,9 +184,4 @@ class StreamFragment : Fragment() {
                 this.subscribed = subscribed
             }
     }
-
-    interface OnSearchHolder {
-        fun onSearch(text: String)
-    }
 }
-

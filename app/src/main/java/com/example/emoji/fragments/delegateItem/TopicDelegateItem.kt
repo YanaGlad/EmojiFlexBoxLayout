@@ -2,6 +2,9 @@ package com.example.emoji.fragments.delegateItem
 
 import com.example.emoji.model.TopicModel
 
+/**
+ * @author y.gladkikh
+ */
 data class TopicDelegateItem(
     val id : Int,
     val topicModel: TopicModel

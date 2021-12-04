@@ -7,6 +7,9 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import javax.inject.Inject
 
+/**
+ * @author y.gladkikh
+ */
 class LoadMessages @Inject constructor(
     private val repo: MessageRepository,
 ) {

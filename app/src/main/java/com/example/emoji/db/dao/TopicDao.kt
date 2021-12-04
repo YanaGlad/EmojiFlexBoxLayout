@@ -1,15 +1,13 @@
 package com.example.emoji.db.dao
 
-import androidx.room.Insert
-import androidx.room.Dao
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Update
-import androidx.room.Delete
+import androidx.room.*
 import com.example.emoji.db.entity.TopicsDB
 import io.reactivex.Flowable
 import io.reactivex.Single
 
+/**
+ * @author y.gladkikh
+ */
 @Dao
 interface TopicDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
