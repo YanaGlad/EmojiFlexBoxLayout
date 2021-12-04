@@ -32,7 +32,7 @@ sealed class Effect {
 }
 
 sealed class StreamCommand {
-    class StreamsLoaded() : StreamCommand()
+    class LoadAllStreams() : StreamCommand()
 }
 
 sealed class StreamEffect {

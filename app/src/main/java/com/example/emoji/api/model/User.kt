@@ -1,5 +1,7 @@
 package com.example.emoji.api.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -11,13 +13,14 @@ data class AllUsersResponse(
     val members: List<MyUserResponse>
 )
 
+@Parcelize
 data class User(
     val id: Int,
     val fullName: String,
     val email: String,
     val avatarUrl: String,
     val isActive: Boolean,
-)
+) : Parcelable
 
 @Serializable
 data class MyUserResponse(

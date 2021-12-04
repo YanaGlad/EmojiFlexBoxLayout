@@ -28,7 +28,7 @@ class MessengerReducer : ScreenDslReducer<MessageEvent, MessageEvent.UI, Message
                     )
                 }
                 commands {
-                    +MessengerCommand.MessagesLoaded(
+                    +MessengerCommand.LoadMessages(
                         streamName = state.streamName,
                         topicName = state.topicName,
                         lastMessageId = state.lastMessageId,
@@ -50,7 +50,7 @@ class MessengerReducer : ScreenDslReducer<MessageEvent, MessageEvent.UI, Message
                     )
                 }
                 commands {
-                    +MessengerCommand.MessagesAdd(
+                    +MessengerCommand.AddMessages(
                         streamName = state.streamName,
                         topicName = state.topicName,
                         error = state.error,
@@ -74,7 +74,7 @@ class MessengerReducer : ScreenDslReducer<MessageEvent, MessageEvent.UI, Message
                     )
                 }
                 commands {
-                    +MessengerCommand.ReactionAdd(
+                    +MessengerCommand.AddReaction(
                         messageId = event.messageId,
                         emojiName = event.emojiName,
                         error = event.error
@@ -92,7 +92,7 @@ class MessengerReducer : ScreenDslReducer<MessageEvent, MessageEvent.UI, Message
                      )
                 }
                 commands {
-                    +MessengerCommand.ReactionRemove(
+                    +MessengerCommand.RemoveReaction(
                         messageId = event.messageId,
                         emojiName = event.emojiName,
                         streamTitle = event.streamTitle,

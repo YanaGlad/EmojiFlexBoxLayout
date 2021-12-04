@@ -13,7 +13,7 @@ class StreamActor constructor(
 
     override fun execute(command: StreamCommand): Observable<StreamEvent.Internal> {
         when (command) {
-            is StreamCommand.StreamsLoaded -> {
+            is StreamCommand.LoadAllStreams -> {
                 return loadStreams.getStreams()
                     .mapEvents(
                         { model -> StreamEvent.Internal.PageLoaded(model) },

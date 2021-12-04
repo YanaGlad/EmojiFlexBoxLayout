@@ -20,7 +20,7 @@ class StreamReducer : ScreenDslReducer<StreamEvent, StreamEvent.UI, StreamEvent.
             is StreamEvent.Internal.PageLoading -> {
                 state { copy(isLoading = true) }
                 commands {
-                    +StreamCommand.StreamsLoaded()
+                    +StreamCommand.LoadAllStreams()
                 }
             }
             is StreamEvent.Internal.SuccessOperation -> {

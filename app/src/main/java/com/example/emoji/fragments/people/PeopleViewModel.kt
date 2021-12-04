@@ -18,6 +18,7 @@ import java.io.IOException
 /**
  * @author y.gladkikh
  */
+
 @ExperimentalSerializationApi
 class PeopleViewModel @AssistedInject constructor(
      private var repo: UserRepository

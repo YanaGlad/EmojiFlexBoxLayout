@@ -4,35 +4,61 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.emoji.App
 import com.example.emoji.databinding.FragmentPeopleBinding
 import com.example.emoji.model.UserModel
-import com.example.emoji.support.MyCoolSnackbar
-import com.example.emoji.viewState.PeopleViewState
+import com.example.emoji.viewState.elm.users.UserEffect
+import com.example.emoji.viewState.elm.users.UserEvent
+import com.example.emoji.viewState.elm.users.UserGlobalDI
+import com.example.emoji.viewState.elm.users.UserState
 import kotlinx.serialization.ExperimentalSerializationApi
+import vivid.money.elmslie.android.base.ElmFragment
+import vivid.money.elmslie.core.store.Store
+import javax.inject.Inject
 
 /**
  * @author y.gladkikh
  */
 @ExperimentalSerializationApi
-class PeopleFragment : Fragment() {
-    private val viewModel: PeopleViewModel by viewModels() {
-        PeopleViewModel.Factory(
-            (activity?.application as App).appComponent.usersViewModelFactory()
-        )
-    }
+class PeopleFragment : ElmFragment<UserEvent, UserEffect, UserState>() {
+
+    @Inject
+    lateinit var usersGlobalDI: UserGlobalDI
 
     private lateinit var adapter: UserAdapter
 
     private var _binding: FragmentPeopleBinding? = null
     private val binding get() = _binding!!
 
+    override val initEvent: UserEvent
+        get() = UserEvent.Internal.AllUsersLoading
+
+    override fun createStore(): Store<UserEvent, UserEffect, UserState> {
+        return usersGlobalDI.elmStoreFactory.provide()
+    }
+
+    override fun render(state: UserState) {
+        binding.progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
+        onUsersLoaded(state)
+    }
+
+    private fun onUsersLoaded(state: UserState) {
+        val mappedList = state.list.map {
+            UserModel(
+                id = it.id,
+                name = it.fullName,
+                email = it.email,
+                picture = it.avatarUrl
+            )
+        }
+        adapter.submitList(mappedList)
+        binding.progressBar.visibility = View.GONE
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.loadUsers()
+        (activity?.application as App).appComponent.inject(this)
     }
 
     override fun onCreateView(
@@ -46,50 +72,7 @@ class PeopleFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initRecycler()
-
-        viewModel.viewState.observe(viewLifecycleOwner, {
-            handleViewState(it)
-        })
     }
-
-    private fun handleViewState(viewState: PeopleViewState) =
-        when (viewState) {
-            is PeopleViewState.Loaded -> onLoaded(viewState)
-            PeopleViewState.Loading -> onLoading()
-            PeopleViewState.Error.NetworkError -> showErrorSnackbar("Нет соединения с интернетом!")
-            PeopleViewState.SuccessOperation -> {
-            }
-            PeopleViewState.Error.UnexpectedError -> showErrorSnackbar("Ошибка!")
-        }
-
-    private fun showErrorSnackbar(message: String) {
-        viewModel.loadUsers()
-        MyCoolSnackbar(
-            layoutInflater,
-            binding.root,
-            message
-        )
-            .makeSnackBar()
-            .show()
-    }
-
-    private fun onLoading() {
-        binding.progressBar.visibility = View.VISIBLE
-    }
-
-    private fun onLoaded(viewState: PeopleViewState.Loaded) {
-        val mappedList = viewState.list.map {
-            UserModel(
-                id = it.id,
-                name = it.fullName,
-                email = it.email,
-                picture = it.avatarUrl
-            )
-        }
-        adapter.submitList(mappedList)
-        binding.progressBar.visibility = View.GONE
-    }
-
     private fun initRecycler() {
         adapter = UserAdapter(object : UserAdapter.OnUserClickListener {
             override fun onUserClick(userModel: UserModel, position: Int) {
@@ -103,6 +86,5 @@ class PeopleFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
-        viewModel.dispose()
     }
 }

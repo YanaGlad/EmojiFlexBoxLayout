@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.annotation.NonNull
 import com.example.emoji.repository.MessageRepository
 import com.example.emoji.repository.StreamRepository
+import com.example.emoji.repository.UserRepository
 import com.example.emoji.viewState.elm.messanger.MessengerGlobalDI
 import com.example.emoji.viewState.elm.stream.StreamGlobalDI
+import com.example.emoji.viewState.elm.users.UserGlobalDI
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -23,17 +25,21 @@ class ApplicationModule(@param:NonNull private val context: Context) {
         return context
     }
 
-    @Singleton
     @Provides
     @NonNull
-    fun provideGlobalDI(repository: MessageRepository) : MessengerGlobalDI {
+    fun provideGlobalDI(repository: MessageRepository): MessengerGlobalDI {
         return MessengerGlobalDI(repository)
     }
 
-    @Singleton
     @Provides
     @NonNull
-    fun provideStreamGlobalDI(repository: StreamRepository) : StreamGlobalDI {
+    fun provideStreamGlobalDI(repository: StreamRepository): StreamGlobalDI {
         return StreamGlobalDI(repository)
+    }
+
+    @Provides
+    @NonNull
+    fun provideUserGlobalDI(repository: UserRepository): UserGlobalDI {
+        return UserGlobalDI(repository)
     }
 }

@@ -56,10 +56,10 @@ sealed class Effect {
 }
 
 sealed class MessengerCommand {
-    class MessagesLoaded(val streamName: String, val topicName: String, val lastMessageId: Int, val count: Int) : MessengerCommand()
-    class MessagesAdd(val streamName: String, val topicName: String, val text: String, val error: Throwable?) : MessengerCommand()
-    class ReactionAdd(val messageId: Int, val emojiName: String, val error: Throwable?) : MessengerCommand()
-    class ReactionRemove(val messageId: Int, val emojiName: String, val topicTitle: String, val streamTitle: String, val error: Throwable?) : MessengerCommand()
+    class LoadMessages(val streamName: String, val topicName: String, val lastMessageId: Int, val count: Int) : MessengerCommand()
+    class AddMessages(val streamName: String, val topicName: String, val text: String, val error: Throwable?) : MessengerCommand()
+    class AddReaction(val messageId: Int, val emojiName: String, val error: Throwable?) : MessengerCommand()
+    class RemoveReaction(val messageId: Int, val emojiName: String, val topicTitle: String, val streamTitle: String, val error: Throwable?) : MessengerCommand()
 }
 
 sealed class MessageEffect {

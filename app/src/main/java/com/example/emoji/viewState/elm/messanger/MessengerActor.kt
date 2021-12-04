@@ -13,7 +13,7 @@ class MessengerActor constructor(
 
     override fun execute(command: MessengerCommand): Observable<MessageEvent.Internal> {
         when (command) {
-            is MessengerCommand.MessagesLoaded -> {
+            is MessengerCommand.LoadMessages -> {
                 return loadMessages.getMessages(command.streamName, command.topicName, command.lastMessageId, command.count)
                     .mapEvents(
                         { list -> MessageEvent.Internal.PageLoaded(list) },
@@ -21,21 +21,21 @@ class MessengerActor constructor(
                     )
             }
 
-            is MessengerCommand.MessagesAdd -> {
+            is MessengerCommand.AddMessages -> {
                 return loadMessages.addMessage(command.streamName, command.topicName, command.text)
                     .mapEvents(
                         successEvent = MessageEvent.Internal.SuccessOperation(),
                         failureEvent = MessageEvent.Internal.ErrorLoading(command.error)
                     )
             }
-            is MessengerCommand.ReactionAdd -> {
+            is MessengerCommand.AddReaction -> {
                 return loadMessages.addReaction(command.messageId, command.emojiName)
                     .mapEvents(
                         { reaction -> MessageEvent.Internal.ReactionAdded(command.messageId, command.emojiName, command.error) },
                         { error -> MessageEvent.Internal.ErrorLoading(error) }
                     )
             }
-            is MessengerCommand.ReactionRemove -> {
+            is MessengerCommand.RemoveReaction -> {
                 return loadMessages.removeReaction(command.messageId, command.emojiName)
                     .mapEvents(
                         successEvent = MessageEvent.Internal.SuccessOperation(),

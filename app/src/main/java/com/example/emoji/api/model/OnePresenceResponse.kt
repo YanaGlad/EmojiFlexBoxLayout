@@ -1,13 +1,16 @@
 package com.example.emoji.api.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Parcelize
 data class Presence(
     val userId: Int,
     val time: Long,
     val status: String,
-)
+) : Parcelable
 
 @Serializable
 data class OnePresenceResponse(
