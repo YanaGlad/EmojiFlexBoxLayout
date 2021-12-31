@@ -7,8 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.example.emoji.App
 import com.example.emoji.R
 import com.example.emoji.api.model.Message
@@ -18,15 +20,12 @@ import com.example.emoji.fragments.delegateItem.MainAdapter
 import com.example.emoji.fragments.delegateItem.MessageDelegate
 import com.example.emoji.model.MessageModel
 import com.example.emoji.model.Reaction
-import com.example.emoji.model.reactionsMap
 import com.example.emoji.support.MyCoolSnackbar
 import com.example.emoji.support.toDelegateItemListWithDate
-import com.example.emoji.viewState.elm.messanger.MessageEffect
-import com.example.emoji.viewState.elm.messanger.MessageEvent
-import com.example.emoji.viewState.elm.messanger.MessengerGlobalDI
-import com.example.emoji.viewState.elm.messanger.MessengerState
+import com.example.emoji.viewState.elm.messanger.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import vivid.money.elmslie.android.base.ElmFragment
+import vivid.money.elmslie.core.ElmStoreCompat
 import vivid.money.elmslie.core.store.Store
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -40,9 +39,11 @@ import javax.inject.Inject
 @ExperimentalSerializationApi
 class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>() {
 
-    //TODO
-    private val streamName = "general"
-    private val topicName = "test"
+    private val args: MessageFragmentArgs by navArgs()
+
+    private val streamName by lazy { args.stream.title }
+    private val topicName by lazy { args.topic.title }
+    private var reactionsList: List<Reaction> = emptyList()
 
     @Inject
     lateinit var messengerGlobalDI: MessengerGlobalDI
@@ -54,25 +55,41 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
     private var _binding: FragmentMessageBinding? = null
     private val binding get() = _binding!!
 
-    override val initEvent: MessageEvent = MessageEvent.Internal.PageLoading(
-        streamName = streamName, //stream.title,
-        topicName = topicName, // topic.title,
-        lastMessageId = 0,
-        count = 1500
-    )
+    override val initEvent: MessageEvent = MessageEvent.UI.Init
 
     override fun createStore(): Store<MessageEvent, MessageEffect, MessengerState> {
-        return messengerGlobalDI.elmStoreFactory.provide()
+        val actor = messengerGlobalDI.actor
+        return ElmStoreCompat(
+            initialState = MessengerState(streamName = streamName, topicName = topicName, isLoading = false),
+            reducer = MessengerReducer(),
+            actor = actor
+        )
     }
 
     override fun render(state: MessengerState) {
         binding.progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
         binding.recycleMessage.visibility = if (state.isLoading) View.GONE else View.VISIBLE
 
-        initAdapter() //TODO remove
+        initAdapter()
         //mainAdapter.submitList(cachedMessages.toDelegateItemListWithDate())
         setupMessageList(state)
+        reactionsList = state.reactions.map {
+            Reaction(
+                userId = it.userId,
+                emoji = it.code,
+                emojiName = it.name,
+                clicked = it.userId == state.myUserId
+            )
+        }
         mainAdapter.submitList(cachedMessages.toDelegateItemListWithDate())
+    }
+
+    override fun handleEffect(effect: MessageEffect) {
+        when (effect) {
+            is MessageEffect.HideKeyboard -> hideKeyboard()
+            is MessageEffect.ShowEnexpectedError -> showErrorSnackbar("Unexpected error!")
+            is MessageEffect.ShowNetworkError -> showErrorSnackbar("No internet connection!")
+        }
     }
 
     private fun setupMessageList(state: MessengerState) {
@@ -101,7 +118,7 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
             it.countedReactions = countEmoji(it)
 
             it.listReactions.forEach { reaction ->
-               reaction.clicked = reaction.userId == 455747 //TODO REAL
+                reaction.clicked = reaction.userId == 455747 //TODO REAL
             }
         }
         cachedMessages += mappedList
@@ -112,6 +129,7 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (activity?.application as App).appComponent.inject(this)
+        //   store.accept(MessageEvent.Internal.ReactionsLoading)
     }
 
     override fun onCreateView(
@@ -127,7 +145,6 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
-        //      viewModel.dispose()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -139,7 +156,7 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
     }
 
     private fun showErrorSnackbar(message: String) {
-        store.accept(MessageEvent.Internal.PageLoading(streamName, topicName))
+        store.accept(MessageEvent.Internal.StreamLoading(streamName, topicName))
 
         MyCoolSnackbar(
             layoutInflater,
@@ -198,7 +215,7 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
             hideKeyboard()
 
             store.accept(MessageEvent.Internal.MessageAdded(streamName, topicName, binding.sendPanel.enterMessageEt.text.toString(), IOException()))
-            store.accept(MessageEvent.Internal.PageLoading(streamName, topicName))
+            store.accept(MessageEvent.Internal.StreamLoading(streamName, topicName))
 
             binding.sendPanel.enterMessageEt.setText("")
         }
@@ -238,7 +255,7 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
     }
 
     private fun showBottomSheetFragment(messageId: Int) {
-        BottomSheetFragment(reactionsMap) { reaction, _ ->
+        BottomSheetFragment(reactionsList) { reaction, _ ->
             updateElementWithReaction(messageId, reaction)
             mainAdapter.submitList(cachedMessages.toDelegateItemListWithDate())
         }.show(childFragmentManager, "bottom_tag")
@@ -263,9 +280,9 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
                 store.accept(MessageEvent.Internal.ReactionRemoved(messageId, reaction.emojiName, topicName, streamName, IOException()))
             }
 
-            store.accept(MessageEvent.Internal.PageLoading(
-                streamName = "general", // stream.title, //TODO args
-                topicName = "test", //topic.title,
+            store.accept(MessageEvent.Internal.StreamLoading(
+                streamName = streamName,
+                topicName = topicName,
                 lastMessageId = 0,
                 count = 1500
             ))
@@ -280,13 +297,14 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
             addDelegate(MessageDelegate(
                 { item, _ -> showBottomSheetFragment(item.id) },
                 { emoji, id ->
-                    {
-                        //  viewModel.addReaction(id, emoji)
+                    run {
+                        Toast.makeText(context, "Click ${emoji.toCharArray()}", Toast.LENGTH_SHORT).show()
+
+                        //viewModel.addReaction(id, emoji)
                     }
                 },
                 { pos ->
-                    //   viewModel.loadMessages(topic.title, stream.title, pos)
-
+                    //viewModel.loadMessages(topic.title, stream.title, pos)
                 })
             )
             addDelegate(DateDelegate())

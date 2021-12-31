@@ -16,8 +16,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
  * @author y.gladkikh
  */
 class BottomSheetFragment(
-    reactMap: Map<String, String>,
-    var onEmogiClick: (reaction: Reaction, position: Int) -> Unit
+    val reactList: List<Reaction>,
+    var onEmogiClick: (reaction: Reaction, position: Int) -> Unit,
 ) : BottomSheetDialogFragment() {
 
     companion object{
@@ -29,11 +29,6 @@ class BottomSheetFragment(
     private var _binding: FragmentBottomSheetBinding? = null
     private val binding get() = _binding!!
 
-    val reactListFromMap : ArrayList<Reaction> = arrayListOf()
-
-    init{
-        for ((value, id) in reactMap) reactListFromMap.add(Reaction(-1, value, id, false))
-    }
 
     override fun getTheme() = R.style.AppBottomSheetDialogTheme
 
@@ -52,7 +47,7 @@ class BottomSheetFragment(
             }
         })
 
-        adapter.submitList(reactListFromMap)
+        adapter.submitList(reactList)
         binding.grid.adapter = adapter
     }
 
@@ -77,7 +72,7 @@ class BottomSheetFragment(
 
     override fun onResume() {
         super.onResume()
-        adapter.submitList(reactListFromMap)
+        adapter.submitList(reactList)
     }
 
     override fun onDestroy() {

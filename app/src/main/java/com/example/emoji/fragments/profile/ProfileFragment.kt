@@ -81,11 +81,6 @@ class ProfileFragment : ElmFragment<UserEvent, UserEffect, UserState>() {
         return binding.root
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
-    }
-
     private fun showSkeleton() {
         binding.skeleton.root.visibility = View.VISIBLE
         binding.real.root.visibility = View.GONE
