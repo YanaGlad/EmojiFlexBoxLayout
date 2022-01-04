@@ -27,8 +27,9 @@ interface Api {
     @POST("messages/{message_id}/reactions")
     fun addMessageReaction(@Path("message_id") id: Int, @Query("emoji_name") reactionName: String): Single<Reaction>
 
-    @DELETE("messages/{id}/reactions")
-    fun removeMessageReaction(@Path("id") id: Int, @Query("emoji_name") reactionName: String): Completable
+
+    @DELETE("messages/{message_id}/reactions")
+    fun removeMessageReaction(@Path("message_id") messageId: Int, @Query("emoji_name") emojiName: String, ): Completable
 
     @GET("users/{id}/presence")
     fun getUserPresence(@Path("id") id: Int): Single<PresenceResponse>

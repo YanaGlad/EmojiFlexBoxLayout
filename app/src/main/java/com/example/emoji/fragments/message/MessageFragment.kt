@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -76,7 +75,7 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
         reactionsList = state.reactions.map {
             Reaction(
                 userId = it.userId,
-                emoji = it.code,
+                emoji = it.emoji,
                 emojiName = it.name,
                 clicked = it.userId == state.myUserId
             )
@@ -89,6 +88,7 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
             is MessageEffect.HideKeyboard -> hideKeyboard()
             is MessageEffect.ShowEnexpectedError -> showErrorSnackbar("Unexpected error!")
             is MessageEffect.ShowNetworkError -> showErrorSnackbar("No internet connection!")
+            is MessageEffect.UpdateMessageList -> mainAdapter.submitList(cachedMessages.toDelegateItemListWithDate())
         }
     }
 
@@ -209,7 +209,6 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
         }
     }
 
-
     private fun setupSendingMessage() {
         binding.sendPanel.sendButton.setOnClickListener {
             hideKeyboard()
@@ -263,6 +262,7 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
 
     private fun countEmoji(message: MessageModel): Map<String, Int> {
         val emojiCount = mutableMapOf<String, Int>()
+
         message.listReactions.forEach {
             val oldValue = emojiCount[it.emoji]
             if (oldValue == null) {
@@ -289,6 +289,23 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
         }
     }
 
+    fun findEmojiInList(emoji: String): Reaction? {
+        for (reaction in reactionsList) {
+            if (reaction.emoji == emoji) {
+                return reaction
+            }
+        }
+        return null
+    }
+
+    fun setClickedEmojiInList(emoji: String): Reaction? {
+        for (reaction in reactionsList) {
+            if (reaction.emoji == emoji) {
+                 reaction.clicked = true
+            }
+        }
+        return null
+    }
 
     private fun initAdapter() {
         mainAdapter = MainAdapter()
@@ -298,14 +315,24 @@ class MessageFragment : ElmFragment<MessageEvent, MessageEffect, MessengerState>
                 { item, _ -> showBottomSheetFragment(item.id) },
                 { emoji, id ->
                     run {
-                        Toast.makeText(context, "Click ${emoji.toCharArray()}", Toast.LENGTH_SHORT).show()
-
-                        //viewModel.addReaction(id, emoji)
+                        //Toast.makeText(context, "Click ${emoji}", Toast.LENGTH_SHORT).show()
+                        val reaction = findEmojiInList(emoji)
+                        if (reaction != null) {
+                            store.accept(MessageEvent.Internal.ReactionAdded(id, reaction.emojiName, IOException()))
+                        }
+                        setClickedEmojiInList(emoji)
                     }
                 },
-                { pos ->
-                    //viewModel.loadMessages(topic.title, stream.title, pos)
-                })
+                { emoji, id ->
+                    run {
+                     //   Toast.makeText(context, "Click REMOVE ${emoji}", Toast.LENGTH_SHORT).show()
+                        val reaction = findEmojiInList(emoji)
+                        if (reaction != null) {
+                            store.accept(MessageEvent.Internal.ReactionRemoved(id, reaction.emojiName, topicName, streamName, IOException()))
+                        }
+                    }
+                },
+            )
             )
             addDelegate(DateDelegate())
         }

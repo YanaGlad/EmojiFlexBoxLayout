@@ -83,7 +83,7 @@ fun codeToEmoji(code: String): String {
     return try {
         utfToEmoji(code)
     } catch (e: NumberFormatException) {
-        utfToEmoji(code)
+        UNKNOWN_EMOJI
     }
 }
 

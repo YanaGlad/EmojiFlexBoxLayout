@@ -16,7 +16,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
  * @author y.gladkikh
  */
 class BottomSheetFragment(
-    val reactList: List<Reaction>,
+    private val reactList: List<Reaction>,
     var onEmogiClick: (reaction: Reaction, position: Int) -> Unit,
 ) : BottomSheetDialogFragment() {
 

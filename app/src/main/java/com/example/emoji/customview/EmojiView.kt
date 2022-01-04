@@ -20,6 +20,8 @@ class EmojiView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr, defStyleRes), View.OnClickListener {
 
     var emojiClick: () -> Unit = { }
+    var emojiClicked: () -> Unit = { }
+    var emojiNotClicked: () -> Unit = { }
 
     var text = ""
 
@@ -117,14 +119,14 @@ class EmojiView @JvmOverloads constructor(
             if (tapCount != 0 && !checked) {
                 tapCount++
                 checked = true
-                emojiClick()
+                emojiClicked()
                 requestLayout()
             }
         } else {
             if (tapCount != 0 && checked) {
                 tapCount--
                 checked = false
-                emojiClick()
+                emojiNotClicked()
                 requestLayout()
             }
         }

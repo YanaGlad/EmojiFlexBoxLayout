@@ -24,9 +24,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.appcompat.widget.SearchView
+    <EditText
         android:id="@+id/searchView"
-        style="@style/SearchStyled"
         android:layout_width="0dp"
         android:layout_height="60dp"
         android:layout_margin="12dp"
@@ -38,8 +37,7 @@
         android:textSize="25sp"
         app:layout_constraintEnd_toStartOf="@+id/search_img"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:searchIcon="@null" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs"
